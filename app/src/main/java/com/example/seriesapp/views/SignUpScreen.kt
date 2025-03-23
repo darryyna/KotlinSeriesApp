@@ -8,12 +8,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.seriesapp.views.components.Logo
 
 @Composable
 fun SignUpScreen(
     onSignUpSuccess: (String) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    navController: NavController
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -102,6 +104,8 @@ fun SignUpScreen(
                 if (validateForm()) {
                     Log.d("SignUp", "Username: $username, Password: $password, Birth Date: $birthDate, Policy Accepted: $isPolicyAccepted")
                     onSignUpSuccess(username)
+                    navController.navigate("home")
+
                 }
             },
             modifier = Modifier.fillMaxWidth(),

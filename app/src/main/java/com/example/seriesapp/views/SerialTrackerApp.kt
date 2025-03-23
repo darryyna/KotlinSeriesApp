@@ -12,14 +12,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.seriesapp.models.initialShows
 import com.example.seriesapp.models.recommendedShowsSet
 import com.example.seriesapp.models.User
+import com.example.seriesapp.models.allShows
 import com.example.seriesapp.models.initialUsers
 
 @Composable
 fun SerialTrackerApp() {
-    val shows = remember { mutableStateOf(initialShows) }
+    val shows = remember { mutableStateOf(allShows) }
     val recommendedShowsByGenre = remember { mutableStateOf(
         recommendedShowsSet.groupBy { it.genre }
     ) }
@@ -67,7 +67,7 @@ fun SerialTrackerApp() {
                         }
 
                         IconButton(onClick = { navController.navigate("favorites") {
-                            popUpTo("home")
+                            popUpTo("home") { inclusive = true }
                         }}) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -109,10 +109,11 @@ fun SerialTrackerApp() {
         ) {
             composable("login") {
                 LoginScreen(
+                    navController = navController,
                     onLoginSuccess = { username ->
                         currentUser = initialUsers.find { it.name == username }
                         navController.navigate("home") {
-                            popUpTo("login") { inclusive = true }
+                            popUpTo("login")
                         }
                     },
                     onSignUpClick = {
@@ -123,18 +124,17 @@ fun SerialTrackerApp() {
 
             composable("signup") {
                 SignUpScreen(
+                    navController = navController,
                     onSignUpSuccess = { username ->
-                        // Create a new user
                         currentUser = User(
                             id = (1..1000).random(),
                             name = username,
-                            password = "", // In a real app, this would be the encrypted password
-                            birthDate = null, // You would convert birthDate string to LocalDate here
+                            password = "",
+                            birthDate = null,
                             isPolicyAccepted = true
                         )
-                        // Navigate to home screen and clear back stack
                         navController.navigate("home") {
-                            popUpTo("login") { inclusive = true }
+                            popUpTo("login")
                         }
                     },
                     onNavigateBack = {
@@ -163,6 +163,14 @@ fun SerialTrackerApp() {
 
             composable("recommendations") {
                 RecommendationsScreen(navController, recommendedShowsByGenre.value)
+            }
+
+            composable("search") {
+                SearchScreen(
+                    navController = navController,
+                    shows = shows.value,
+                    toggleFavorite = toggleFavorite
+                )
             }
         }
     }

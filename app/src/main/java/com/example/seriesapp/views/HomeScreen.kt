@@ -46,7 +46,7 @@ fun HomeScreen(
                     contentDescription = "Search",
                     modifier = Modifier
                         .size(24.dp)
-                        .clickable {}
+                        .clickable { navController.navigate("search") }
                 )
             }
         }

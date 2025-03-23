@@ -43,3 +43,5 @@ val recommendedShowsSet = setOf(
     TvShow(20, "Sherlock", R.drawable.sherlock, "Crime", 4.9f, 4, 4)
 )
 
+val allShows = (initialShows + recommendedShowsSet.toList())
+    .distinctBy { it.id }
