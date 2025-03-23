@@ -14,13 +14,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.seriesapp.models.initialShows
 import com.example.seriesapp.models.recommendedShowsSet
+import com.example.seriesapp.models.User
+import com.example.seriesapp.models.initialUsers
 
 @Composable
 fun SerialTrackerApp() {
     val shows = remember { mutableStateOf(initialShows) }
     val recommendedShowsByGenre = remember { mutableStateOf(
         recommendedShowsSet.groupBy { it.genre }
-    )}
+    ) }
     val toggleFavorite = { showId: Int ->
         shows.value = shows.value.map { show ->
             if (show.id == showId) {
@@ -32,64 +34,68 @@ fun SerialTrackerApp() {
     }
 
     val navController = rememberNavController()
+    var currentUser by remember { mutableStateOf<User?>(null) }
+
     Scaffold(
         bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.height(64.dp),
-                containerColor = MaterialTheme.colorScheme.surface
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+            if (currentUser != null) {
+                BottomAppBar(
+                    modifier = Modifier.height(64.dp),
+                    containerColor = MaterialTheme.colorScheme.surface
                 ) {
-                    IconButton(onClick = { navController.navigate("home") {
-                        popUpTo("home") { inclusive = true }
-                    }}) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Home,
-                                contentDescription = "Home",
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text("Home", fontSize = 12.sp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        IconButton(onClick = { navController.navigate("home") {
+                            popUpTo("home") { inclusive = true }
+                        }}) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Home,
+                                    contentDescription = "Home",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text("Home", fontSize = 12.sp)
+                            }
                         }
-                    }
 
-                    IconButton(onClick = { navController.navigate("favorites") {
-                        popUpTo("home")
-                    }}) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = "Favorites",
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text("Favorites", fontSize = 12.sp)
+                        IconButton(onClick = { navController.navigate("favorites") {
+                            popUpTo("home")
+                        }}) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Favorite,
+                                    contentDescription = "Favorites",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text("Favorites", fontSize = 12.sp)
+                            }
                         }
-                    }
 
-                    IconButton(onClick = { navController.navigate("recommendations") }) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "Recommendations",
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text("Recommendations", fontSize = 12.sp)
+                        IconButton(onClick = { navController.navigate("recommendations") }) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Recommendations",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text("Recommendations", fontSize = 12.sp)
+                            }
                         }
                     }
                 }
@@ -98,15 +104,53 @@ fun SerialTrackerApp() {
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = "home",
+            startDestination = if (currentUser == null) "login" else "home",
             modifier = Modifier.padding(paddingValues)
         ) {
+            composable("login") {
+                LoginScreen(
+                    onLoginSuccess = { username ->
+                        currentUser = initialUsers.find { it.name == username }
+                        navController.navigate("home") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    },
+                    onSignUpClick = {
+                        navController.navigate("signup")
+                    }
+                )
+            }
+
+            composable("signup") {
+                SignUpScreen(
+                    onSignUpSuccess = { username ->
+                        // Create a new user
+                        currentUser = User(
+                            id = (1..1000).random(),
+                            name = username,
+                            password = "", // In a real app, this would be the encrypted password
+                            birthDate = null, // You would convert birthDate string to LocalDate here
+                            isPolicyAccepted = true
+                        )
+                        // Navigate to home screen and clear back stack
+                        navController.navigate("home") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    },
+                    onNavigateBack = {
+                        navController.navigateUp()
+                    }
+                )
+            }
+
             composable("home") {
                 HomeScreen(navController, shows.value, toggleFavorite)
             }
+
             composable("favorites") {
                 FavoritesScreen(navController, shows.value, toggleFavorite)
             }
+
             composable("details/{showId}") { backStackEntry ->
                 val showId = backStackEntry.arguments?.getString("showId")?.toIntOrNull() ?: 1
                 ShowDetailScreen(
@@ -116,6 +160,7 @@ fun SerialTrackerApp() {
                     toggleFavorite = toggleFavorite
                 )
             }
+
             composable("recommendations") {
                 RecommendationsScreen(navController, recommendedShowsByGenre.value)
             }

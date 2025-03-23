@@ -3,6 +3,9 @@ package com.example.seriesapp.views
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -33,30 +36,41 @@ fun RecommendationsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(
+//        LazyColumn(
+//            modifier = Modifier.fillMaxSize(),
+//            verticalArrangement = Arrangement.spacedBy(16.dp)
+//        ) {
+//            recommendedShowsByGenre.forEach { (genre, shows) ->
+//                item {
+//                    Text(
+//                        text = genre,
+//                        style = MaterialTheme.typography.titleMedium,
+//                        color = MaterialTheme.colorScheme.primary
+//
+//                    )
+//                }
+//
+//                item {
+//                    LazyRow(
+//                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+//                        modifier = Modifier.fillMaxWidth()
+//                    ) {
+//                        items(shows) { show ->
+//                            ShowRecommendedGridItem(show, navController)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 150.dp),
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            recommendedShowsByGenre.forEach { (genre, shows) ->
-                item {
-                    Text(
-                        text = genre,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-
-                    )
-                }
-
-                item {
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(shows) { show ->
-                            ShowRecommendedGridItem(show, navController)
-                        }
-                    }
-                }
+            items(recommendedShowsByGenre.values.flatten()) { show ->
+                ShowRecommendedGridItem(show, navController)
             }
         }
     }
