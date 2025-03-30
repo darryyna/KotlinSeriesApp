@@ -18,30 +18,44 @@ class ShowDetailViewModel(
 
     fun loadShow() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true, isError = false) }
             try {
                 val show = repository.getShowById(showId)
                 _state.update { it.copy(show = show, isLoading = false) }
             } catch (e: Exception) {
-                _state.update { it.copy(error = e.message, isLoading = false) }
+                _state.update { it.copy(isError = true, isLoading = false) }
             }
         }
     }
 
     fun toggleFavorite() {
-        _state.value.show?.let { show ->
-            repository.toggleFavorite(show.id)
-            _state.update { it.copy(show = show.copy(isFavorite = !show.isFavorite)) }
+        viewModelScope.launch {
+            _state.update { it.copy(isError = false) }
+            try {
+                _state.value.show?.let { show ->
+                    repository.toggleFavorite(show.id)
+                    _state.update { it.copy(show = show.copy(isFavorite = !show.isFavorite)) }
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isError = true) }
+            }
         }
     }
 
     fun markSeasonWatched() {
-        _state.value.show?.let { show ->
-            repository.markSeasonWatched(show.id)
-            _state.update {
-                it.copy(show = show.copy(
-                    seasonsWatched = (show.seasonsWatched + 1).coerceAtMost(show.totalSeasons)
-                ))
+        viewModelScope.launch {
+            _state.update { it.copy(isError = false) }
+            try {
+                _state.value.show?.let { show ->
+                    repository.markSeasonWatched(show.id)
+                    _state.update {
+                        it.copy(show = show.copy(
+                            seasonsWatched = (show.seasonsWatched + 1).coerceAtMost(show.totalSeasons)
+                        ))
+                    }
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isError = true) }
             }
         }
     }
@@ -50,5 +64,5 @@ class ShowDetailViewModel(
 data class ShowDetailState(
     val show: TvShow? = null,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val isError: Boolean = false
 )

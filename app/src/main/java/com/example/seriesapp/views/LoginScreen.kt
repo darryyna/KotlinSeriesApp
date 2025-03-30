@@ -25,6 +25,8 @@ fun LoginScreen(
     viewModel: LoginViewModel
 ) {
     val state by viewModel.state.collectAsState()
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -37,8 +39,11 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(15.dp))
 
         OutlinedTextField(
-            value = state.username,
-            onValueChange = { viewModel.onEvent(LoginEvent.UpdateUsername(it)) },
+            value = username,
+            onValueChange = {
+                username = it
+                viewModel.onEvent(LoginEvent.UpdateUsername(it))
+            },
             label = { Text("Username") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -46,8 +51,11 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = state.password,
-            onValueChange = { viewModel.onEvent(LoginEvent.UpdatePassword(it)) },
+            value = password,
+            onValueChange = {
+                password = it
+                viewModel.onEvent(LoginEvent.UpdatePassword(it))
+            },
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
@@ -59,14 +67,14 @@ fun LoginScreen(
             onClick = { viewModel.onEvent(LoginEvent.Login) },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
-            enabled = state.username.isNotEmpty() && state.password.isNotEmpty() && !state.isLoading
+            enabled = username.isNotEmpty() && password.isNotEmpty() && !state.isLoading
         ) {
             Text(text = if (state.isLoading) "Logging In..." else "Log In")
         }
 
         if (state.isSuccess) {
             LaunchedEffect(Unit) {
-                onLoginSuccess(state.currentUser!!)
+                state.currentUser?.let { onLoginSuccess(it) }
                 navController.navigate("home") { popUpTo("login") { inclusive = true } }
             }
         }
@@ -74,8 +82,13 @@ fun LoginScreen(
         if (state.isError) {
             Snackbar(
                 action = {
-                    Button(onClick = {}) {
-                        Text("Retry")
+                    Button(onClick = {
+                        username = ""
+                        password = ""
+                        viewModel.onEvent(LoginEvent.UpdateUsername(""))
+                        viewModel.onEvent(LoginEvent.UpdatePassword(""))
+                    }) {
+                        Text("Reset")
                     }
                 },
                 modifier = Modifier.padding(8.dp)
