@@ -27,7 +27,7 @@ import com.example.seriesapp.models.TvShow
 fun ShowListItem(
     show: TvShow,
     navController: NavController,
-    toggleFavorite: (Int) -> Unit
+    onFavoriteClick: (Int) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -73,9 +73,7 @@ fun ShowListItem(
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier
                             .size(24.dp)
-                            .clickable {
-                                toggleFavorite(show.id)
-                            }
+                            .clickable(onClick = { onFavoriteClick(show.id) })
                             .padding(2.dp)
                     )
                 }

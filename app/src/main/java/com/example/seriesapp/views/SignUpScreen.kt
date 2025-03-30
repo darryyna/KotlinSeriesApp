@@ -1,6 +1,8 @@
 package com.example.seriesapp.views
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -8,30 +10,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.seriesapp.models.User
+import com.example.seriesapp.viewModel.SignUpEvent
+import com.example.seriesapp.viewModel.SignUpViewModel
 import com.example.seriesapp.views.components.Logo
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SignUpScreen(
-    onSignUpSuccess: (String) -> Unit,
+    onSignUpSuccess: (User) -> Unit,
     onNavigateBack: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    viewModel: SignUpViewModel
 ) {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var birthDate by remember { mutableStateOf("") }
-    var isPolicyAccepted by remember { mutableStateOf(false) }
-
-    var isButtonEnabled by remember { mutableStateOf(false) }
-
-    fun validateForm(): Boolean {
-        isButtonEnabled = username.isNotEmpty() && password.isNotEmpty() && birthDate.isNotEmpty() && isPolicyAccepted
-        return isButtonEnabled
-    }
-
-    LaunchedEffect(username, password, birthDate, isPolicyAccepted) {
-        validateForm()
-    }
+    val state by viewModel.state.collectAsState()
 
     Column(
         modifier = Modifier
@@ -43,35 +37,27 @@ fun SignUpScreen(
         Logo()
 
         OutlinedTextField(
-            value = username,
-            onValueChange = {
-                username = it
-            },
+            value = state.username,
+            onValueChange = { viewModel.onEvent(SignUpEvent.UpdateUsername(it)) },
             label = { Text("Username") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-            },
+            value = state.password,
+            onValueChange = { viewModel.onEvent(SignUpEvent.UpdatePassword(it)) },
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = birthDate,
-            onValueChange = {
-                birthDate = it
-            },
+            value = state.birthDateString,
+            onValueChange = { viewModel.onEvent(SignUpEvent.UpdateBirthDate(it)) },
             label = { Text("Date of Birth (DD/MM/YYYY)") },
             modifier = Modifier.fillMaxWidth(),
         )
@@ -85,10 +71,8 @@ fun SignUpScreen(
                 .padding(start = 0.dp)
         ) {
             Checkbox(
-                checked = isPolicyAccepted,
-                onCheckedChange = {
-                    isPolicyAccepted = it
-                },
+                checked = state.isPolicyAccepted,
+                onCheckedChange = { viewModel.onEvent(SignUpEvent.UpdatePolicyAccepted(it)) },
                 modifier = Modifier.padding(0.dp)
             )
             Text(
@@ -100,19 +84,19 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(15.dp))
 
         Button(
-            onClick = {
-                if (validateForm()) {
-                    Log.d("SignUp", "Username: $username, Password: $password, Birth Date: $birthDate, Policy Accepted: $isPolicyAccepted")
-                    onSignUpSuccess(username)
-                    navController.navigate("home")
-
-                }
-            },
+            onClick = { viewModel.onEvent(SignUpEvent.SignUp) },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
-            enabled = isButtonEnabled
+            enabled = state.isFormValid()
         ) {
             Text(text = "Sign Up")
+        }
+
+        if (state.isSuccess) {
+            LaunchedEffect(Unit) {
+                onSignUpSuccess(state.currentUser!!)
+                navController.navigate("home") { popUpTo("signup") { inclusive = true } }
+            }
         }
 
         Row(

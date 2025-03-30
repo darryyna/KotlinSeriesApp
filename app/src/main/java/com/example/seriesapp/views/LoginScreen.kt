@@ -1,6 +1,8 @@
 package com.example.seriesapp.views
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -9,28 +11,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.seriesapp.models.initialUsers
+import com.example.seriesapp.models.User
+import com.example.seriesapp.viewModel.LoginEvent
+import com.example.seriesapp.viewModel.LoginViewModel
 import com.example.seriesapp.views.components.Logo
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LoginScreen(
-    onLoginSuccess: (String) -> Unit,
+    onLoginSuccess: (User) -> Unit,
     onSignUpClick: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    viewModel: LoginViewModel
 ) {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
-    var isButtonEnabled by remember { mutableStateOf(false) }
-
-    fun validateInputs(): Boolean {
-        isButtonEnabled = username.isNotEmpty() && password.isNotEmpty()
-        return isButtonEnabled
-    }
-
-    LaunchedEffect(username, password) {
-        validateInputs()
-    }
+    val state by viewModel.state.collectAsState()
 
     Column(
         modifier = Modifier
@@ -40,56 +34,56 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Logo()
-
         Spacer(modifier = Modifier.height(15.dp))
 
         OutlinedTextField(
-            value = username,
-            onValueChange = {
-                username = it
-            },
+            value = state.username,
+            onValueChange = { viewModel.onEvent(LoginEvent.UpdateUsername(it)) },
             label = { Text("Username") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-
-            },
+            value = state.password,
+            onValueChange = { viewModel.onEvent(LoginEvent.UpdatePassword(it)) },
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = {
-                if (validateInputs()) {
-                    val user = initialUsers.find { it.name == username && it.password == password }
-                    if (user != null) {
-                        Log.d("Login", "User logged in: $username")
-                        onLoginSuccess(username)
-                        navController.navigate("home")
-                    } else {
-                        Log.d("Login", "Invalid credentials")
-                    }
-                }
-            },
+            onClick = { viewModel.onEvent(LoginEvent.Login) },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
-            enabled = isButtonEnabled
+            enabled = state.username.isNotEmpty() && state.password.isNotEmpty() && !state.isLoading
         ) {
-            Text(text = "Log In")
+            Text(text = if (state.isLoading) "Logging In..." else "Log In")
+        }
+
+        if (state.isSuccess) {
+            LaunchedEffect(Unit) {
+                onLoginSuccess(state.currentUser!!)
+                navController.navigate("home") { popUpTo("login") { inclusive = true } }
+            }
+        }
+
+        if (state.isError) {
+            Snackbar(
+                action = {
+                    Button(onClick = {}) {
+                        Text("Retry")
+                    }
+                },
+                modifier = Modifier.padding(8.dp)
+            ) { Text("Invalid username or password") }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,

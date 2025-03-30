@@ -13,16 +13,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.seriesapp.models.TvShow
+import com.example.seriesapp.viewModel.HomeViewModel
+import com.example.seriesapp.viewModel.HomeEvent
 import com.example.seriesapp.views.components.ShowListItem
 
 @Composable
 fun HomeScreen(
     navController: NavController,
-    shows: List<TvShow>,
-    toggleFavorite: (Int) -> Unit
+    viewModel: HomeViewModel
 ) {
+    val state by viewModel.state.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,11 +55,16 @@ fun HomeScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(shows) { show ->
-                ShowListItem(show, navController, toggleFavorite)
+
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(state.tvShows) { show ->
+                ShowListItem(
+                    show = show,
+                    navController = navController,
+                    onFavoriteClick = { showId ->
+                        viewModel.onEvent(HomeEvent.ToggleFavorite(showId))
+                    }
+                )
             }
         }
     }

@@ -8,9 +8,9 @@ data class TvShow(
     val imageResId: Int,
     val genre: String,
     val rating: Float,
-    val seasonsWatched: Int,
+    var seasonsWatched: Int,
     val totalSeasons: Int,
-    val isFavorite: Boolean = false,
+    var isFavorite: Boolean = false,
     val nextEpisodeDate: String? = null
 )
 
@@ -34,13 +34,12 @@ val recommendedShowsSet = setOf(
     TvShow(13, "Mindhunter", R.drawable.mindhunter, "Drama", 4.6f, 2, 2),
 
     TvShow(14, "Black Mirror", R.drawable.blackmirror, "Sci-Fi", 4.8f, 4, 5),
-    TvShow(15, "Stranger Things", R.drawable.st, "Sci-Fi", 4.8f, 2, 4),
-    TvShow(16, "The Expanse", R.drawable.expanse, "Sci-Fi", 4.5f, 3, 6),
+    TvShow(15, "The Expanse", R.drawable.expanse, "Sci-Fi", 4.5f, 3, 6),
 
-    TvShow(17, "Narcos", R.drawable.narcos, "Crime", 4.6f, 3, 6),
-    TvShow(18, "True Detective", R.drawable.truedetective, "Crime", 4.7f, 2, 4),
-    TvShow(19, "Money Heist", R.drawable.moneyheist, "Crime", 4.6f, 5, 5),
-    TvShow(20, "Sherlock", R.drawable.sherlock, "Crime", 4.9f, 4, 4)
+    TvShow(16, "Narcos", R.drawable.narcos, "Crime", 4.6f, 3, 6),
+    TvShow(17, "True Detective", R.drawable.truedetective, "Crime", 4.7f, 2, 4),
+    TvShow(18, "Money Heist", R.drawable.moneyheist, "Crime", 4.6f, 5, 5),
+    TvShow(19, "Sherlock", R.drawable.sherlock, "Crime", 4.9f, 4, 4)
 )
 
 val allShows = (initialShows + recommendedShowsSet.toList())

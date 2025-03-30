@@ -14,15 +14,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.seriesapp.models.TvShow
+import com.example.seriesapp.repository.FavoritesRepository
+import com.example.seriesapp.viewModel.FavoritesEvent
+import com.example.seriesapp.viewModel.FavoritesViewModel
 import com.example.seriesapp.views.components.ShowListItem
 
 @Composable
 fun FavoritesScreen(
     navController: NavController,
-    shows: List<TvShow>,
-    toggleFavorite: (Int) -> Unit
+    repository: FavoritesRepository
 ) {
+    val viewModel = remember { FavoritesViewModel(repository) }
+    val state by viewModel.state.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -37,16 +41,12 @@ fun FavoritesScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val favoriteShows = shows.filter { it.isFavorite }
-
-        if (favoriteShows.isEmpty()) {
+        if (state.favoriteShows.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         imageVector = Icons.Default.Favorite,
                         contentDescription = null,
@@ -61,11 +61,15 @@ fun FavoritesScreen(
                 }
             }
         } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(favoriteShows) { show ->
-                    ShowListItem(show, navController, toggleFavorite)
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(state.favoriteShows) { show ->
+                    ShowListItem(
+                        show = show,
+                        navController = navController,
+                        onFavoriteClick = { showId ->
+                            viewModel.handleEvent(FavoritesEvent.ToggleFavorite(showId))
+                        }
+                    )
                 }
             }
         }

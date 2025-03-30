@@ -8,77 +8,78 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.seriesapp.models.TvShow
+import com.example.seriesapp.repository.FavoritesRepository
+import com.example.seriesapp.viewModel.SearchViewModel
 import com.example.seriesapp.views.components.ShowListItem
 
 @Composable
 fun SearchScreen(
     navController: NavController,
-    shows: List<TvShow>,
-    toggleFavorite: (Int) -> Unit
+    viewModel: SearchViewModel = viewModel { SearchViewModel(FavoritesRepository()) }
 ) {
-    var searchText by remember { mutableStateOf("") }
-    var minSeasons by remember { mutableFloatStateOf(0f) }
-    var sortByRating by remember { mutableStateOf(false) }
+    val state by viewModel.state.collectAsState()
 
-    val filteredShows = shows.filter { show ->
-        (show.title.contains(searchText, ignoreCase = true)) &&
-                (show.totalSeasons >= minSeasons.toInt())
-    }.let { filtered ->
-        if (sortByRating) {
-            filtered.sortedByDescending { it.rating }
-        } else {
-            filtered
+    when (state) {
+        is SearchViewModel.State.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        is SearchViewModel.State.Success -> {
+            val successState = state as SearchViewModel.State.Success
+            SearchContent(
+                state = successState,
+                onEvent = viewModel::handleEvent,
+                navController = navController
+            )
         }
     }
+}
 
+@Composable
+private fun SearchContent(
+    state: SearchViewModel.State.Success,
+    onEvent: (SearchViewModel.Event) -> Unit,
+    navController: NavController
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
         TextField(
-            value = searchText,
-            onValueChange = { searchText = it },
-            label = { Text("Search by title") },
+            value = state.searchText,
+            onValueChange = { onEvent(SearchViewModel.Event.SearchTextChanged(it)) },
+            label = { Text("Search") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(Modifier.height(16.dp))
 
-        Text("Min seasons: ${minSeasons.toInt()}", fontSize = 16.sp)
+        Text("Min seasons: ${state.minSeasons}")
         Slider(
-            value = minSeasons,
-            onValueChange = { minSeasons = it },
+            value = state.minSeasons.toFloat(),
+            onValueChange = { onEvent(SearchViewModel.Event.MinSeasonsChanged(it.toInt())) },
             valueRange = 1f..10f,
-            steps = 9,
-            modifier = Modifier.fillMaxWidth()
+            steps = 9
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
-                checked = sortByRating,
-                onCheckedChange = { sortByRating = it }
+                checked = state.sortByRating,
+                onCheckedChange = { onEvent(SearchViewModel.Event.SortByRatingToggled(it)) }
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Sort by highest rating", fontSize = 16.sp)
+            Text("Sort by rating")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(filteredShows) { show ->
+        LazyColumn {
+            items(state.filteredShows) { show ->
                 ShowListItem(
                     show = show,
                     navController = navController,
-                    toggleFavorite = toggleFavorite
+                    onFavoriteClick = { onEvent(SearchViewModel.Event.ToggleFavorite(it)) }
                 )
             }
         }

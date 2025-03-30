@@ -1,5 +1,7 @@
 package com.example.seriesapp.views
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -9,29 +11,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.seriesapp.models.recommendedShowsSet
 import com.example.seriesapp.models.User
 import com.example.seriesapp.models.allShows
-import com.example.seriesapp.models.initialUsers
+import com.example.seriesapp.repository.FavoritesRepository
+import com.example.seriesapp.repository.LoginRepository
+import com.example.seriesapp.repository.ShowDetailRepository
+import com.example.seriesapp.repository.UserProfileRepository
+import com.example.seriesapp.viewModel.HomeViewModel
+import com.example.seriesapp.viewModel.LoginViewModel
+import com.example.seriesapp.viewModel.RecommendationsViewModel
+import com.example.seriesapp.viewModel.SearchViewModel
+import com.example.seriesapp.viewModel.ShowDetailViewModel
+import com.example.seriesapp.viewModel.SignUpViewModel
+import com.example.seriesapp.viewModel.UserProfileViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SerialTrackerApp() {
-    val shows = remember { mutableStateOf(allShows) }
-    val recommendedShowsByGenre = remember { mutableStateOf(
-        recommendedShowsSet.groupBy { it.genre }
-    ) }
-    val toggleFavorite = { showId: Int ->
-        shows.value = shows.value.map { show ->
-            if (show.id == showId) {
-                show.copy(isFavorite = !show.isFavorite)
-            } else {
-                show
-            }
-        }
-    }
+    val favRepository = remember { FavoritesRepository() }
 
     val navController = rememberNavController()
     var currentUser by remember { mutableStateOf<User?>(null) }
@@ -97,6 +98,21 @@ fun SerialTrackerApp() {
                                 Text("Recommendations", fontSize = 12.sp)
                             }
                         }
+
+                        IconButton(onClick = { navController.navigate("profile") }) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Profile",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text("Profile", fontSize = 12.sp)
+                            }
+                        }
                     }
                 }
             }
@@ -108,69 +124,66 @@ fun SerialTrackerApp() {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("login") {
+                val loginViewModel = remember { LoginViewModel(LoginRepository()) }
                 LoginScreen(
                     navController = navController,
-                    onLoginSuccess = { username ->
-                        currentUser = initialUsers.find { it.name == username }
-                        navController.navigate("home") {
-                            popUpTo("login")
-                        }
-                    },
-                    onSignUpClick = {
-                        navController.navigate("signup")
-                    }
+                    onLoginSuccess = { user -> currentUser = user },
+                    onSignUpClick = { navController.navigate("signup") },
+                    viewModel = loginViewModel
                 )
             }
 
             composable("signup") {
+                val signUpViewModel = remember { SignUpViewModel() }
                 SignUpScreen(
                     navController = navController,
-                    onSignUpSuccess = { username ->
-                        currentUser = User(
-                            id = (1..1000).random(),
-                            name = username,
-                            password = "",
-                            birthDate = null,
-                            isPolicyAccepted = true
-                        )
-                        navController.navigate("home") {
-                            popUpTo("login")
-                        }
-                    },
-                    onNavigateBack = {
-                        navController.navigateUp()
-                    }
+                    onSignUpSuccess = { user -> currentUser = user },
+                    onNavigateBack = { navController.navigateUp() },
+                    viewModel = signUpViewModel
                 )
             }
 
             composable("home") {
-                HomeScreen(navController, shows.value, toggleFavorite)
+                val homeViewModel = remember { HomeViewModel(favRepository) }
+                HomeScreen(navController, homeViewModel)
             }
 
             composable("favorites") {
-                FavoritesScreen(navController, shows.value, toggleFavorite)
+                FavoritesScreen(navController, favRepository)
             }
 
             composable("details/{showId}") { backStackEntry ->
                 val showId = backStackEntry.arguments?.getString("showId")?.toIntOrNull() ?: 1
+                val showDetailRepository = remember { ShowDetailRepository(initialShows = allShows) }
                 ShowDetailScreen(
                     showId = showId,
                     navController = navController,
-                    shows = shows.value,
-                    toggleFavorite = toggleFavorite
+                    viewModel = viewModel(initializer = {
+                        ShowDetailViewModel(
+                            repository = showDetailRepository,
+                            showId = showId
+                        )
+                    })
                 )
             }
 
             composable("recommendations") {
-                RecommendationsScreen(navController, recommendedShowsByGenre.value)
+                val recommendationsViewModel: RecommendationsViewModel = viewModel()
+                RecommendationsScreen(navController, viewModel = recommendationsViewModel)
             }
 
             composable("search") {
                 SearchScreen(
                     navController = navController,
-                    shows = shows.value,
-                    toggleFavorite = toggleFavorite
+                    viewModel = SearchViewModel(FavoritesRepository())
                 )
+            }
+
+            composable("profile") {
+                val userProfileViewModel: UserProfileViewModel = viewModel {
+                    UserProfileViewModel(UserProfileRepository(), currentUser)
+                }
+                UserProfileScreen(viewModel = userProfileViewModel)
             }
         }
     }
