@@ -1,6 +1,7 @@
 package com.example.seriesapp.views
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -9,8 +10,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,9 +38,28 @@ import com.example.seriesapp.viewModel.UserProfileViewModel
 @Composable
 fun SerialTrackerApp() {
     val favRepository = remember { FavoritesRepository() }
-
     val navController = rememberNavController()
     var currentUser by remember { mutableStateOf<User?>(null) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { source, event ->
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> Log.d("Lifecycle", "App - onCreate")
+                Lifecycle.Event.ON_START -> Log.d("Lifecycle", "App - onStart")
+                Lifecycle.Event.ON_RESUME -> Log.d("Lifecycle", "App - onResume")
+                Lifecycle.Event.ON_PAUSE -> Log.d("Lifecycle", "App - onPause")
+                Lifecycle.Event.ON_STOP -> Log.d("Lifecycle", "App - onStop")
+                Lifecycle.Event.ON_DESTROY -> Log.d("Lifecycle", "App - onDestroy")
+                Lifecycle.Event.ON_ANY -> Log.d("Lifecycle", "App - onAny: $event")
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -53,65 +77,18 @@ fun SerialTrackerApp() {
                         IconButton(onClick = { navController.navigate("home") {
                             popUpTo("home") { inclusive = true }
                         }}) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Home,
-                                    contentDescription = "Home",
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text("Home", fontSize = 12.sp)
-                            }
+                            BottomNavItem(icon = Icons.Default.Home, label = "Home")
                         }
-
                         IconButton(onClick = { navController.navigate("favorites") {
                             popUpTo("home") { inclusive = true }
                         }}) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Favorite,
-                                    contentDescription = "Favorites",
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text("Favorites", fontSize = 12.sp)
-                            }
+                            BottomNavItem(icon = Icons.Default.Favorite, label = "Favorites")
                         }
-
                         IconButton(onClick = { navController.navigate("recommendations") }) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = "Recommendations",
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text("Recommendations", fontSize = 12.sp)
-                            }
+                            BottomNavItem(icon = Icons.Default.Star, label = "Recommendations")
                         }
-
                         IconButton(onClick = { navController.navigate("profile") }) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Profile",
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text("Profile", fontSize = 12.sp)
-                            }
+                            BottomNavItem(icon = Icons.Default.Person, label = "Profile")
                         }
                     }
                 }
@@ -186,5 +163,21 @@ fun SerialTrackerApp() {
                 UserProfileScreen(viewModel = userProfileViewModel)
             }
         }
+    }
+}
+
+@Composable
+private fun BottomNavItem(icon: ImageVector, label: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(label, fontSize = 12.sp)
     }
 }
