@@ -52,6 +52,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.compose.ui.text.google.fonts)
+    implementation(libs.androidx.material3.windowSizeClass)
+    implementation(libs.androidx.window)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

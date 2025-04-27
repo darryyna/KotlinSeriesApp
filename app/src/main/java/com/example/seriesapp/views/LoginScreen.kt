@@ -1,7 +1,6 @@
 package com.example.seriesapp.views
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -44,7 +43,7 @@ fun LoginScreen(
                 username = it
                 viewModel.onEvent(LoginEvent.UpdateUsername(it))
             },
-            label = { Text("Username") },
+            label = { Text("Username", style = MaterialTheme.typography.bodyLarge) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -56,7 +55,7 @@ fun LoginScreen(
                 password = it
                 viewModel.onEvent(LoginEvent.UpdatePassword(it))
             },
-            label = { Text("Password") },
+            label = { Text("Password", style = MaterialTheme.typography.bodyLarge) },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
         )
@@ -69,7 +68,10 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
             enabled = username.isNotEmpty() && password.isNotEmpty() && !state.isLoading
         ) {
-            Text(text = if (state.isLoading) "Logging In..." else "Log In")
+            Text(
+                text = if (state.isLoading) "Logging In..." else "Log In",
+                style = MaterialTheme.typography.labelLarge
+            )
         }
 
         if (state.isSuccess) {
@@ -88,11 +90,11 @@ fun LoginScreen(
                         viewModel.onEvent(LoginEvent.UpdateUsername(""))
                         viewModel.onEvent(LoginEvent.UpdatePassword(""))
                     }) {
-                        Text("Reset")
+                        Text("Reset", style = MaterialTheme.typography.bodyMedium)
                     }
                 },
                 modifier = Modifier.padding(8.dp)
-            ) { Text("Invalid username or password") }
+            ) { Text("Invalid username or password", style = MaterialTheme.typography.bodyMedium) }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -102,9 +104,9 @@ fun LoginScreen(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Don't have an account?")
+            Text("Don't have an account?", style = MaterialTheme.typography.bodyMedium)
             TextButton(onClick = onSignUpClick) {
-                Text("Create one")
+                Text("Create one", style = MaterialTheme.typography.labelLarge)
             }
         }
     }
