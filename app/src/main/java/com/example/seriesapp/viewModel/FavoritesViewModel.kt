@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class FavoritesViewModel(
+open class FavoritesViewModel(
     private val repository: FavoritesRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(FavoritesState())
-    val state: StateFlow<FavoritesState> = _state
+    open val state: StateFlow<FavoritesState> = _state
 
     init {
         viewModelScope.launch {

@@ -2,7 +2,7 @@ package com.example.seriesapp.repository
 
 import com.example.seriesapp.models.TvShow
 
-class ShowDetailRepository(initialShows: List<TvShow>) {
+open class ShowDetailRepository(initialShows: List<TvShow>) {
 
     private val shows = initialShows.toMutableList()
 

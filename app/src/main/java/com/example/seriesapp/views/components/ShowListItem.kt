@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,6 +34,7 @@ fun ShowListItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(120.dp)
+            .testTag("showItem_${show.id}")
             .clickable { navController.navigate("details/${show.id}") },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -44,7 +46,8 @@ fun ShowListItem(
                 modifier = Modifier
                     .width(100.dp)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp)),
+                    .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
+                    .testTag("showImage_${show.id}"),
                 contentScale = ContentScale.Crop
             )
 
@@ -64,7 +67,9 @@ fun ShowListItem(
                         fontSize = 16.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("showTitle_${show.id}")
                     )
 
                     Icon(
@@ -73,6 +78,7 @@ fun ShowListItem(
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier
                             .size(24.dp)
+                            .testTag("favoriteIcon_${show.id}")
                             .clickable(onClick = { onFavoriteClick(show.id) })
                             .padding(2.dp)
                     )
@@ -83,7 +89,8 @@ fun ShowListItem(
                 Text(
                     text = show.genre,
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = Color.Gray,
+                    modifier = Modifier.testTag("showGenre_${show.id}")
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -93,7 +100,8 @@ fun ShowListItem(
                 ) {
                     Text(
                         text = "Seasons: ${show.seasonsWatched}/${show.totalSeasons}",
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
+                        modifier = Modifier.testTag("showSeasonsProgressText_${show.id}")
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -104,6 +112,7 @@ fun ShowListItem(
                             .height(6.dp)
                             .clip(RoundedCornerShape(3.dp))
                             .background(Color.LightGray)
+                            .testTag("showProgressBackground_${show.id}")
                     ) {
                         Box(
                             modifier = Modifier
@@ -111,6 +120,7 @@ fun ShowListItem(
                                 .fillMaxWidth(show.seasonsWatched.toFloat() / show.totalSeasons)
                                 .clip(RoundedCornerShape(3.dp))
                                 .background(MaterialTheme.colorScheme.primary)
+                                .testTag("showProgressBar_${show.id}")
                         )
                     }
                 }
@@ -119,7 +129,8 @@ fun ShowListItem(
                     Text(
                         text = "Next episode: ${show.nextEpisodeDate}",
                         fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.testTag("showNextEpisode_${show.id}")
                     )
                 }
             }

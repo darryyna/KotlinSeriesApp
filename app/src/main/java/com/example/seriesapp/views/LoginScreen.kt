@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -30,6 +31,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .testTag("loginScreen")
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -44,7 +46,9 @@ fun LoginScreen(
                 viewModel.onEvent(LoginEvent.UpdateUsername(it))
             },
             label = { Text("Username", style = MaterialTheme.typography.bodyLarge) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("usernameField")
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -56,7 +60,9 @@ fun LoginScreen(
                 viewModel.onEvent(LoginEvent.UpdatePassword(it))
             },
             label = { Text("Password", style = MaterialTheme.typography.bodyLarge) },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("passwordField"),
             visualTransformation = PasswordVisualTransformation(),
         )
 
@@ -64,7 +70,7 @@ fun LoginScreen(
 
         Button(
             onClick = { viewModel.onEvent(LoginEvent.Login) },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag("loginButton"),
             colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
             enabled = username.isNotEmpty() && password.isNotEmpty() && !state.isLoading
         ) {
@@ -93,7 +99,9 @@ fun LoginScreen(
                         Text("Reset", style = MaterialTheme.typography.bodyMedium)
                     }
                 },
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier
+                    .padding(8.dp)
+                    .testTag("errorText")
             ) { Text("Invalid username or password", style = MaterialTheme.typography.bodyMedium) }
         }
 
@@ -105,7 +113,10 @@ fun LoginScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Don't have an account?", style = MaterialTheme.typography.bodyMedium)
-            TextButton(onClick = onSignUpClick) {
+            TextButton(
+                onClick = onSignUpClick,
+                modifier = Modifier.testTag("signUpButton")
+            ) {
                 Text("Create one", style = MaterialTheme.typography.labelLarge)
             }
         }

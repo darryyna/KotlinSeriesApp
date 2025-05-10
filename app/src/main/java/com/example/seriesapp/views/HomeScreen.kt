@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +30,7 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .testTag("homeScreen")
             .padding(16.dp)
     ) {
         Row(
@@ -40,7 +42,8 @@ fun HomeScreen(
                 text = "My Series Journal",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.testTag("homeTitle")
             )
 
             Box {
@@ -49,6 +52,7 @@ fun HomeScreen(
                     contentDescription = "Search",
                     modifier = Modifier
                         .size(24.dp)
+                        .testTag("searchIcon")
                         .clickable { navController.navigate("search") }
                 )
             }
@@ -56,7 +60,10 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.testTag("showList")
+        ) {
             items(state.tvShows) { show ->
                 ShowListItem(
                     show = show,
@@ -64,6 +71,7 @@ fun HomeScreen(
                     onFavoriteClick = { showId ->
                         viewModel.onEvent(HomeEvent.ToggleFavorite(showId))
                     }
+
                 )
             }
         }

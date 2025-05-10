@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,7 +22,6 @@ import com.example.seriesapp.utils.BottomNavigationBar
 import com.example.seriesapp.utils.NavigationRailBar
 import com.example.seriesapp.viewModel.HomeViewModel
 import com.example.seriesapp.viewModel.LoginViewModel
-import com.example.seriesapp.viewModel.RecommendationsViewModel
 import com.example.seriesapp.viewModel.SearchViewModel
 import com.example.seriesapp.viewModel.ShowDetailViewModel
 import com.example.seriesapp.viewModel.SignUpViewModel
@@ -36,9 +36,8 @@ fun isExpandedScreen(): Boolean {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SerialTrackerApp() {
+fun SerialTrackerApp(navController: NavHostController = rememberNavController()) {
     val favRepository = remember { FavoritesRepository() }
-    val navController = rememberNavController()
     var currentUser by remember { mutableStateOf<User?>(null) }
     val expandedScreen = isExpandedScreen()
 
@@ -106,11 +105,6 @@ fun SerialTrackerApp() {
                     )
                 }
 
-//                composable("recommendations") {
-//                    val recommendationsViewModel: RecommendationsViewModel = viewModel()
-//                    RecommendationsScreen(navController, viewModel = recommendationsViewModel)
-//                }
-
                 composable("search") {
                     SearchScreen(
                         navController = navController,
@@ -125,12 +119,8 @@ fun SerialTrackerApp() {
                     UserProfileScreen(viewModel = userProfileViewModel)
                 }
 
-                composable("discover") {
-                    DiscoveryScreen()
-                }
-
                 composable("splash") {
-                    SplashScreen(navController);
+                    SplashScreen(navController)
                 }
             }
         }

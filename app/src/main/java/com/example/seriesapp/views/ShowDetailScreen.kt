@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,7 @@ import androidx.navigation.NavController
 import com.example.seriesapp.models.TvShow
 import com.example.seriesapp.repository.ShowDetailRepository
 import com.example.seriesapp.viewModel.ShowDetailViewModel
+import com.example.seriesapp.R // Переконайтеся, що у вас є цей імпорт для R.drawable
 
 @Composable
 fun ShowDetailScreen(
@@ -42,6 +44,7 @@ fun ShowDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = 16.dp)
+                .testTag("showDetailScreen")
         ) {
             Box(
                 modifier = Modifier
@@ -75,6 +78,7 @@ fun ShowDetailScreen(
                         .size(36.dp)
                         .clip(CircleShape)
                         .background(Color.Black.copy(alpha = 0.4f))
+                        .testTag("backButton")
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
@@ -92,7 +96,8 @@ fun ShowDetailScreen(
                         text = show.title,
                         color = Color.White,
                         fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.testTag("showTitle")
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -103,7 +108,8 @@ fun ShowDetailScreen(
                         Text(
                             text = show.genre,
                             color = Color.White.copy(alpha = 0.8f),
-                            fontSize = 16.sp
+                            fontSize = 16.sp,
+                            modifier = Modifier.testTag("showGenre")
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Row(
@@ -122,7 +128,8 @@ fun ShowDetailScreen(
                                 text = show.rating.toString(),
                                 color = Color.White,
                                 fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.testTag("showRating")
                             )
                         }
                     }
@@ -135,11 +142,13 @@ fun ShowDetailScreen(
                         .size(36.dp)
                         .clip(CircleShape)
                         .background(Color.White.copy(alpha = 0.8f))
+                        .testTag("favoriteButton")
                 ) {
                     Icon(
                         imageVector = if (show.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = if (show.isFavorite) "Remove from favorites" else "Add to favorites",
-                        tint = MaterialTheme.colorScheme.secondary
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.testTag("favoriteIcon")
                     )
                 }
             }
@@ -151,7 +160,9 @@ fun ShowDetailScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("watchingProgressCard"),
                     shape = RoundedCornerShape(12.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
@@ -171,7 +182,8 @@ fun ShowDetailScreen(
                         ) {
                             Text(
                                 text = "Seasons: ${show.seasonsWatched}/${show.totalSeasons}",
-                                fontSize = 16.sp
+                                fontSize = 16.sp,
+                                modifier = Modifier.testTag("seasonsWatchedText")
                             )
 
                             Spacer(modifier = Modifier.width(8.dp))
@@ -182,6 +194,7 @@ fun ShowDetailScreen(
                                     .height(8.dp)
                                     .clip(RoundedCornerShape(4.dp))
                                     .background(Color.LightGray)
+                                    .testTag("seasonsProgressBarBackground")
                             ) {
                                 Box(
                                     modifier = Modifier
@@ -189,6 +202,7 @@ fun ShowDetailScreen(
                                         .fillMaxWidth(show.seasonsWatched.toFloat() / show.totalSeasons)
                                         .clip(RoundedCornerShape(4.dp))
                                         .background(MaterialTheme.colorScheme.primary)
+                                        .testTag("seasonsProgressBar")
                                 )
                             }
                         }
@@ -204,6 +218,7 @@ fun ShowDetailScreen(
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                                     .padding(12.dp)
+                                    .testTag("nextEpisodeRow")
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Notifications,
@@ -218,7 +233,8 @@ fun ShowDetailScreen(
                                     text = "Next episode: ${show.nextEpisodeDate}",
                                     fontSize = 16.sp,
                                     color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Medium
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.testTag("nextEpisodeText")
                                 )
                             }
                         }
@@ -227,7 +243,9 @@ fun ShowDetailScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("seriesInfoCard"),
                     shape = RoundedCornerShape(12.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
@@ -255,7 +273,8 @@ fun ShowDetailScreen(
                                 Text(
                                     text = show.genre,
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.testTag("infoGenreText")
                                 )
                             }
 
@@ -278,7 +297,8 @@ fun ShowDetailScreen(
                                     Text(
                                         text = "${show.rating}/5.0",
                                         fontSize = 16.sp,
-                                        fontWeight = FontWeight.Medium
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.testTag("infoRatingText")
                                     )
                                 }
                             }
@@ -299,7 +319,8 @@ fun ShowDetailScreen(
                                 Text(
                                     text = "${show.totalSeasons}",
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.testTag("infoTotalSeasonsText")
                                 )
                             }
 
@@ -316,7 +337,8 @@ fun ShowDetailScreen(
                                     color = if (show.nextEpisodeDate != null)
                                         MaterialTheme.colorScheme.primary
                                     else
-                                        MaterialTheme.colorScheme.secondary
+                                        MaterialTheme.colorScheme.secondary,
+                                    modifier = Modifier.testTag("infoStatusText")
                                 )
                             }
                         }
@@ -330,7 +352,9 @@ fun ShowDetailScreen(
                 ) {
                     Button(
                         onClick = { viewModel.markSeasonWatched() },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("markWatchedButton"),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(8.dp)
                     ) {
@@ -351,7 +375,9 @@ fun ShowDetailScreen(
 
                     Button(
                         onClick = {},
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("addNoteButton"),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                         shape = RoundedCornerShape(8.dp)
                     ) {
@@ -373,11 +399,10 @@ fun ShowDetailScreen(
             }
         }
     } ?: run {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.fillMaxSize().testTag("loadingOrErrorContainer"), contentAlignment = Alignment.Center) {
             if (state.isLoading) {
-                CircularProgressIndicator()
-            } else {
-                Text("Error loading show details")
+                CircularProgressIndicator(modifier = Modifier.testTag("loadingIndicator"))
+                Text("Error loading show details", modifier = Modifier.testTag("errorText"))
             }
         }
     }

@@ -8,14 +8,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-class HomeViewModel(
+open class HomeViewModel(
     private val favoritesRepository: FavoritesRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
-    val state: StateFlow<HomeState> = _state
+    open val state: StateFlow<HomeState> = _state
 
-    fun onEvent(event: HomeEvent) {
+    open fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.ToggleFavorite -> toggleFavorite(event.showId)
         }

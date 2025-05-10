@@ -11,16 +11,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel() {
+open class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel() {
 
-    private val _state = MutableStateFlow(LoginState())
-    val state: StateFlow<LoginState> = _state
+    open val _state = MutableStateFlow(LoginState())
+    open val state: StateFlow<LoginState> = _state
 
     private var username: String = ""
     private var password: String = ""
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun onEvent(event: LoginEvent) {
+    open fun onEvent(event: LoginEvent) {
         when (event) {
             is LoginEvent.UpdateUsername -> {
                 username = event.username

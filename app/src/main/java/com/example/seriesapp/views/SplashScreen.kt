@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.seriesapp.views.components.Logo
@@ -29,6 +30,7 @@ fun SplashScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .testTag("splashScreen")
             .background(MaterialTheme.colorScheme.primaryContainer),
         contentAlignment = Alignment.Center
     ) {
@@ -42,6 +44,7 @@ fun SplashScreen(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(bottom = 32.dp)
+                    .testTag("splashLoadingIndicator") // Renamed for clarity
             ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,

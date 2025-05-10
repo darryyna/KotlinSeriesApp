@@ -9,14 +9,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ShowDetailViewModel(
+open class ShowDetailViewModel(
     private val repository: ShowDetailRepository,
     private val showId: Int
 ) : ViewModel() {
     private val _state = MutableStateFlow(ShowDetailState())
-    val state: StateFlow<ShowDetailState> = _state
+    open val state: StateFlow<ShowDetailState> = _state
 
-    fun loadShow() {
+    open fun loadShow() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, isError = false) }
             try {
@@ -28,7 +28,7 @@ class ShowDetailViewModel(
         }
     }
 
-    fun toggleFavorite() {
+    open fun toggleFavorite() {
         viewModelScope.launch {
             _state.update { it.copy(isError = false) }
             try {
@@ -42,7 +42,7 @@ class ShowDetailViewModel(
         }
     }
 
-    fun markSeasonWatched() {
+    open fun markSeasonWatched() {
         viewModelScope.launch {
             _state.update { it.copy(isError = false) }
             try {

@@ -11,13 +11,13 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-class SignUpViewModel : ViewModel() {
+open class SignUpViewModel : ViewModel() {
 
     private val _state = MutableStateFlow(SignUpState())
-    val state: StateFlow<SignUpState> = _state
+    open val state: StateFlow<SignUpState> = _state
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun onEvent(event: SignUpEvent) {
+    open fun onEvent(event: SignUpEvent) {
         when (event) {
             is SignUpEvent.UpdateUsername -> _state.update { it.copy(username = event.username) }
             is SignUpEvent.UpdatePassword -> _state.update { it.copy(password = event.password) }
@@ -38,7 +38,7 @@ class SignUpViewModel : ViewModel() {
         }
     }
 
-    private fun createUser(): User {
+    protected open fun createUser(): User {
         return User(
             id = (1..1000).random(),
             name = _state.value.username,
