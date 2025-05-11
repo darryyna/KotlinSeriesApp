@@ -1,5 +1,8 @@
 package com.example.seriesapp
 
+import LoginEvent
+import LoginState
+import LoginViewModel
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavController
@@ -7,9 +10,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.seriesapp.viewModel.LoginEvent
-import com.example.seriesapp.viewModel.LoginState
-import com.example.seriesapp.viewModel.LoginViewModel
 import com.example.seriesapp.views.LoginScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

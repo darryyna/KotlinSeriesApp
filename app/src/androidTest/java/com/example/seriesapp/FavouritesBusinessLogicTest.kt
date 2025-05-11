@@ -1,20 +1,33 @@
 package com.example.seriesapp
 
-import com.example.seriesapp.models.initialShows
+import com.example.seriesapp.models.testShows
 import com.example.seriesapp.repository.FavoritesRepository
+import com.example.seriesapp.repository.TvShowsDataState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
-private val testInitialTvShows = initialShows.map { it.copy() }
-
+@OptIn(ExperimentalCoroutinesApi::class)
 class FavouritesBusinessLogicTest {
 
     private lateinit var repository: FavoritesRepository
 
+    private val testInitialTvShows = testShows.map { it.copy() }
+
     @Before
     fun setUp() {
         repository = FavoritesRepository()
+
+        val initialSuccessState = TvShowsDataState.Success(testInitialTvShows)
+        (repository.allShowsState as MutableStateFlow).value = initialSuccessState
+
+        // Оновлюємо обрані шоу (бо fetch не викликається)
+        runBlocking {
+            repository.updateFavorites()
+        }
     }
 
     @Test
@@ -26,12 +39,12 @@ class FavouritesBusinessLogicTest {
     }
 
     @Test
-    fun updateFavorites_withShow_updatesShowAndFavorites() {
-
+    fun updateFavorites_withShow_updatesShowAndFavorites() = runBlocking {
         val showToUpdate = testInitialTvShows.first { it.id == 1 }.copy(isFavorite = true)
         Assert.assertFalse(repository.favoriteShows.value.any { it.id == 1 })
 
-        repository.updateFavorites(showToUpdate)
+        repository.updateShowLocally(showToUpdate)
+
         val updatedFavorites = repository.favoriteShows.value
         Assert.assertEquals(3, updatedFavorites.size)
         Assert.assertTrue(updatedFavorites.any { it.id == 1 && it.isFavorite })
@@ -40,12 +53,12 @@ class FavouritesBusinessLogicTest {
     }
 
     @Test
-    fun updateFavorites_withShow_fromFavoriteToNonFavorite() {
+    fun updateFavorites_withShow_fromFavoriteToNonFavorite() = runBlocking {
         val showToUpdate = testInitialTvShows.first { it.id == 3 }.copy(isFavorite = false)
         Assert.assertTrue(repository.favoriteShows.value.any { it.id == 3 })
         Assert.assertEquals(2, repository.favoriteShows.value.size)
 
-        repository.updateFavorites(showToUpdate)
+        repository.updateShowLocally(showToUpdate)
 
         val updatedFavorites = repository.favoriteShows.value
         Assert.assertEquals(1, updatedFavorites.size)
@@ -53,9 +66,8 @@ class FavouritesBusinessLogicTest {
         Assert.assertTrue(updatedFavorites.any { it.id == 4 })
     }
 
-
     @Test
-    fun updateFavorites_withoutShow_recalculatesFavorites() {
+    fun updateFavorites_withoutShow_recalculatesFavorites() = runBlocking {
         Assert.assertEquals(2, repository.favoriteShows.value.size)
         Assert.assertTrue(repository.favoriteShows.value.any { it.id == 3 })
         Assert.assertTrue(repository.favoriteShows.value.any { it.id == 4 })
@@ -69,9 +81,9 @@ class FavouritesBusinessLogicTest {
     }
 
     @Test
-    fun updateFavorites_withShow_updatesNonFavoriteField() {
+    fun updateFavorites_withShow_updatesNonFavoriteField() = runBlocking {
         val showToUpdate = testInitialTvShows.first { it.id == 1 }.copy(rating = 5.0f)
-        repository.updateFavorites(showToUpdate)
+        repository.updateShowLocally(showToUpdate)
 
         Assert.assertEquals(2, repository.favoriteShows.value.size)
         Assert.assertFalse(repository.favoriteShows.value.any { it.id == 1 })

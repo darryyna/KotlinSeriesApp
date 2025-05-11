@@ -69,6 +69,17 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.navigation.testing)
 
+    implementation(libs.retrofit.runtime)
+    implementation(libs.retrofit.converter.gson)
+
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.okhttp.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     testImplementation(kotlin("test"))

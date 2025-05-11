@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -22,14 +23,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.seriesapp.models.TvShow
 
 @Composable
 fun ShowListItem(
     show: TvShow,
     navController: NavController,
-    onFavoriteClick: (Int) -> Unit
+    onFavoriteClick: (TvShow) -> Unit
 ) {
+
+    val context = LocalContext.current
+    val imageResId = remember(show.imageName) {
+        context.resources.getIdentifier(show.imageName, "drawable", context.packageName)
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -41,7 +48,7 @@ fun ShowListItem(
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             Image(
-                painter = painterResource(id = show.imageResId),
+                painter = painterResource(id = imageResId),
                 contentDescription = show.title,
                 modifier = Modifier
                     .width(100.dp)
@@ -79,7 +86,7 @@ fun ShowListItem(
                         modifier = Modifier
                             .size(24.dp)
                             .testTag("favoriteIcon_${show.id}")
-                            .clickable(onClick = { onFavoriteClick(show.id) })
+                            .clickable(onClick = { onFavoriteClick(show) })
                             .padding(2.dp)
                     )
                 }

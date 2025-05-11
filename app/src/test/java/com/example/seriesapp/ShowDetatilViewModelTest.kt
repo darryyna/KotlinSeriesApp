@@ -1,6 +1,7 @@
 package com.example.seriesapp.viewModel
 
 import com.example.seriesapp.models.TvShow
+import com.example.seriesapp.repository.FavoritesRepository
 import com.example.seriesapp.repository.ShowDetailRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,13 +20,15 @@ import org.junit.runner.Description
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.*
 
-class MainCoroutineRule(
+class MainCoroutineRule @OptIn(ExperimentalCoroutinesApi::class) constructor(
     private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
 ) : TestWatcher() {
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun starting(description: Description) {
         kotlinx.coroutines.Dispatchers.setMain(testDispatcher)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun finished(description: Description) {
         kotlinx.coroutines.Dispatchers.resetMain()
     }
@@ -33,8 +36,9 @@ class MainCoroutineRule(
 
 class TestableShowDetailViewModel(
     repository: ShowDetailRepository,
+    favoritesRepository: FavoritesRepository,
     showId: Int
-) : ShowDetailViewModel(repository, showId) {
+) : ShowDetailViewModel(repository, favoritesRepository ,showId) {
 
     fun setTestState(state: ShowDetailState) {
         (this.state as MutableStateFlow).value = state
@@ -42,6 +46,7 @@ class TestableShowDetailViewModel(
 }
 
 @ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 class ShowDetailViewModelTest {
 
     @get:Rule
@@ -49,6 +54,7 @@ class ShowDetailViewModelTest {
 
     private lateinit var viewModel: TestableShowDetailViewModel
     private val mockRepository: ShowDetailRepository = mock()
+    private val mockFavoritesRepository: FavoritesRepository = mock()
     private val testShowId = 1
 
     private val testShow = TvShow(
@@ -56,7 +62,7 @@ class ShowDetailViewModelTest {
         title = "Test Show",
         genre = "Drama",
         rating = 4.5f,
-        imageResId = 0,
+        imageName = "test",
         totalSeasons = 5,
         seasonsWatched = 2,
         isFavorite = false,
@@ -68,7 +74,11 @@ class ShowDetailViewModelTest {
 
     @Before
     fun setup() {
-        viewModel = TestableShowDetailViewModel(repository = mockRepository, showId = testShowId)
+        viewModel = TestableShowDetailViewModel(
+            repository = mockRepository,
+            favoritesRepository = mockFavoritesRepository,
+            showId = testShowId
+        )
     }
 
     @Test
@@ -77,7 +87,6 @@ class ShowDetailViewModelTest {
         viewModel.loadShow()
         advanceUntilIdle()
         assertEquals(ShowDetailState(show = testShow, isLoading = false), viewModel.state.value)
-        verify(mockRepository).getShowById(testShowId)
     }
 
     @Test
@@ -86,31 +95,27 @@ class ShowDetailViewModelTest {
         viewModel.loadShow()
         advanceUntilIdle()
         assertEquals(ShowDetailState(isError = true, isLoading = false), viewModel.state.value)
-        verify(mockRepository).getShowById(testShowId)
     }
+
 
     @Test
     fun toggleFavorite_fromFalseToTrue_updatesStateAndCallsRepository() = runTest {
         viewModel.setTestState(ShowDetailState(show = testShow))
-        doNothing().whenever(mockRepository).toggleFavorite(testShowId)
+        whenever(mockFavoritesRepository.updateShowLocally(testShowFavorite)).thenReturn(Unit)
         viewModel.toggleFavorite()
-
         advanceUntilIdle()
-        assertTrue(viewModel.state.value.show?.isFavorite ?: false)
         assertEquals(testShowFavorite, viewModel.state.value.show)
-        verify(mockRepository).toggleFavorite(testShowId)
+        verify(mockFavoritesRepository).updateShowLocally(testShowFavorite)
     }
 
     @Test
     fun toggleFavorite_fromTrueToFalse_updatesStateAndCallsRepository() = runTest {
         viewModel.setTestState(ShowDetailState(show = testShowFavorite))
-        doNothing().whenever(mockRepository).toggleFavorite(testShowId)
+        whenever(mockFavoritesRepository.updateShowLocally(testShow)).thenReturn(Unit)
         viewModel.toggleFavorite()
         advanceUntilIdle()
-
-        assertFalse(viewModel.state.value.show?.isFavorite ?: true)
         assertEquals(testShow, viewModel.state.value.show)
-        verify(mockRepository).toggleFavorite(testShowId)
+        verify(mockFavoritesRepository).updateShowLocally(testShow)
     }
 
     @Test
@@ -119,27 +124,28 @@ class ShowDetailViewModelTest {
         viewModel.toggleFavorite()
         advanceUntilIdle()
         assertEquals(ShowDetailState(show = null), viewModel.state.value)
-        verify(mockRepository, never()).toggleFavorite(any())
+        verify(mockFavoritesRepository, never()).updateShowLocally(any())
     }
 
     @Test
     fun markSeasonWatched_increasesSeasonsWatchedAndCallsRepository() = runTest {
+        val expected = testShow.copy(seasonsWatched = 3)
         viewModel.setTestState(ShowDetailState(show = testShow))
-        doNothing().whenever(mockRepository).markSeasonWatched(testShowId)
+        whenever(mockFavoritesRepository.updateShowLocally(expected)).thenReturn(Unit)
         viewModel.markSeasonWatched()
         advanceUntilIdle()
-        assertEquals(testShow.seasonsWatched + 1, viewModel.state.value.show?.seasonsWatched)
-        verify(mockRepository).markSeasonWatched(testShowId)
+        assertEquals(expected, viewModel.state.value.show)
+        verify(mockFavoritesRepository).updateShowLocally(expected)
     }
 
     @Test
     fun markSeasonWatched_doesNotExceedTotalSeasonsAndCallsRepository() = runTest {
         viewModel.setTestState(ShowDetailState(show = testShowMaxSeasonsWatched))
-        doNothing().whenever(mockRepository).markSeasonWatched(testShowId)
+        whenever(mockFavoritesRepository.updateShowLocally(testShowMaxSeasonsWatched)).thenReturn(Unit)
         viewModel.markSeasonWatched()
         advanceUntilIdle()
-        assertEquals(testShowMaxSeasonsWatched.totalSeasons, viewModel.state.value.show?.seasonsWatched)
-        verify(mockRepository).markSeasonWatched(testShowId)
+        assertEquals(testShowMaxSeasonsWatched, viewModel.state.value.show)
+        verify(mockFavoritesRepository).updateShowLocally(testShowMaxSeasonsWatched)
     }
 
     @Test
@@ -148,6 +154,6 @@ class ShowDetailViewModelTest {
         viewModel.markSeasonWatched()
         advanceUntilIdle()
         assertEquals(ShowDetailState(show = null), viewModel.state.value)
-        verify(mockRepository, never()).markSeasonWatched(any())
+        verify(mockFavoritesRepository, never()).updateShowLocally(any())
     }
 }

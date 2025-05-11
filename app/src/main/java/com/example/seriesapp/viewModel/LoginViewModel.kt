@@ -1,9 +1,7 @@
-package com.example.seriesapp.viewModel
-
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.annotation.RequiresApi
+import android.os.Build
 import com.example.seriesapp.models.User
 import com.example.seriesapp.repository.LoginRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +11,7 @@ import kotlinx.coroutines.launch
 
 open class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel() {
 
-    open val _state = MutableStateFlow(LoginState())
+    private val _state = MutableStateFlow(LoginState())
     open val state: StateFlow<LoginState> = _state
 
     private var username: String = ""
@@ -33,7 +31,9 @@ open class LoginViewModel(private val loginRepository: LoginRepository) : ViewMo
             is LoginEvent.Login -> {
                 viewModelScope.launch {
                     _state.update { it.copy(isLoading = true, isError = false, isSuccess = false) }
+
                     val user = loginRepository.findUser(username, password)
+
                     if (user != null) {
                         _state.update {
                             it.copy(

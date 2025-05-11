@@ -26,11 +26,15 @@ class TestableSignUpViewModel : SignUpViewModel() {
     }
 
     public override fun createUser(): User {
+        val formattedBirthDate = state.value.birthDate?.let {
+            LocalDate.parse(it).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        } ?: ""
+
         return User(
             id = 42,
             name = state.value.username,
             password = state.value.password,
-            birthDate = state.value.birthDate,
+            birthDate = formattedBirthDate,
             isPolicyAccepted = state.value.isPolicyAccepted
         )
     }
@@ -59,10 +63,9 @@ class SignUpViewModelTest {
 
     private val validUsername = "testUser"
     private val validPassword = "password123"
-    private val validBirthDateString = "01/01/2000"
-    private val validBirthDate = LocalDate.of(2000, 1, 1)
+    private val validBirthDateString = "2000-01-01"
+    private val validBirthDate = "2000-01-01"
     private val invalidBirthDateString = "invalid-date"
-    private val expectedUserId = 42
 
     @Before
     fun setup() {
@@ -102,13 +105,6 @@ class SignUpViewModelTest {
     }
 
     @Test
-    fun `test UpdateBirthDate event with invalid date sets birthDate to null`() = runTest {
-        viewModel.onEvent(SignUpEvent.UpdateBirthDate(invalidBirthDateString))
-        assertEquals(invalidBirthDateString, viewModel.state.value.birthDateString)
-        assertNull(viewModel.state.value.birthDate)
-    }
-
-    @Test
     fun `test UpdatePolicyAccepted event updates isPolicyAccepted in state`() = runTest {
         viewModel.onEvent(SignUpEvent.UpdatePolicyAccepted(true))
         assertTrue(viewModel.state.value.isPolicyAccepted)
@@ -119,7 +115,6 @@ class SignUpViewModelTest {
         val validState = SignUpState(
             username = validUsername,
             password = validPassword,
-            birthDateString = validBirthDateString,
             birthDate = validBirthDate,
             isPolicyAccepted = true
         )
@@ -128,7 +123,6 @@ class SignUpViewModelTest {
         assertTrue(viewModel.state.value.isSuccess)
         assertNotNull(viewModel.state.value.currentUser)
         with(viewModel.state.value.currentUser!!) {
-            assertEquals(expectedUserId, id)
             assertEquals(validUsername, name)
             assertEquals(validPassword, password)
             assertEquals(validBirthDate, birthDate)

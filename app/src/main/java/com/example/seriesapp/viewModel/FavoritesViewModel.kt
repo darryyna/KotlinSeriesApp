@@ -1,9 +1,8 @@
-package com.example.seriesapp.viewModel
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.seriesapp.models.TvShow
 import com.example.seriesapp.repository.FavoritesRepository
+import com.example.seriesapp.repository.TvShowsDataState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -12,13 +11,34 @@ import kotlinx.coroutines.launch
 open class FavoritesViewModel(
     private val repository: FavoritesRepository
 ) : ViewModel() {
+
     private val _state = MutableStateFlow(FavoritesState())
-    open val state: StateFlow<FavoritesState> = _state
+    val state: StateFlow<FavoritesState> = _state
 
     init {
+        observeFavorites()
+    }
+
+    private fun observeFavorites() {
         viewModelScope.launch {
-            repository.favoriteShows.collect { shows ->
-                _state.update { it.copy(favoriteShows = shows) }
+            repository.allShowsState.collect { dataState ->
+                when (dataState) {
+                    is TvShowsDataState.Loading -> {
+                        _state.update { it.copy(isLoading = true, error = null) }
+                    }
+                    is TvShowsDataState.Success -> {
+                        _state.update {
+                            it.copy(
+                                favoriteShows = dataState.tvShows.filter { show -> show.isFavorite },
+                                isLoading = false,
+                                error = null
+                            )
+                        }
+                    }
+                    is TvShowsDataState.Error -> {
+                        _state.update { it.copy(isLoading = false, error = dataState.message) }
+                    }
+                }
             }
         }
     }
@@ -26,9 +46,9 @@ open class FavoritesViewModel(
     fun handleEvent(event: FavoritesEvent) {
         when (event) {
             is FavoritesEvent.ToggleFavorite -> {
-                val currentShows = _state.value.favoriteShows
-                currentShows.find { it.id == event.showId }?.let { show ->
-                    repository.updateFavorites(show.copy(isFavorite = !show.isFavorite))
+                viewModelScope.launch {
+                    val toggledShow = event.show.copy(isFavorite = !event.show.isFavorite)
+                    repository.updateShowLocally(toggledShow)
                 }
             }
         }
@@ -36,9 +56,11 @@ open class FavoritesViewModel(
 }
 
 data class FavoritesState(
-    val favoriteShows: List<TvShow> = emptyList()
+    val favoriteShows: List<TvShow> = emptyList(),
+    val isLoading: Boolean = false,
+    val error: String? = null
 )
 
-sealed interface FavoritesEvent {
-    data class ToggleFavorite(val showId: Int) : FavoritesEvent
+sealed class FavoritesEvent {
+    data class ToggleFavorite(val show: TvShow) : FavoritesEvent()
 }

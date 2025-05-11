@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -22,10 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.seriesapp.models.TvShow
-import com.example.seriesapp.repository.ShowDetailRepository
 import com.example.seriesapp.viewModel.ShowDetailViewModel
-import com.example.seriesapp.R // Переконайтеся, що у вас є цей імпорт для R.drawable
 
 @Composable
 fun ShowDetailScreen(
@@ -34,12 +32,17 @@ fun ShowDetailScreen(
     viewModel: ShowDetailViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(showId) {
         viewModel.loadShow()
     }
 
     state.show?.let { show ->
+
+        val imageResId = remember(show.imageName) {
+            context.resources.getIdentifier(show.imageName, "drawable", context.packageName)
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -52,7 +55,7 @@ fun ShowDetailScreen(
                     .height(250.dp)
             ) {
                 Image(
-                    painter = painterResource(id = show.imageResId),
+                    painter = painterResource(id = imageResId),
                     contentDescription = show.title,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

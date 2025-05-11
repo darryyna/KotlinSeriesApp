@@ -1,16 +1,23 @@
 package com.example.seriesapp.repository
-
-import android.os.Build
-import androidx.annotation.RequiresApi
+import com.example.seriesapp.api.RetrofitClient
 import com.example.seriesapp.models.User
-import com.example.seriesapp.models.initialUsers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-@RequiresApi(Build.VERSION_CODES.O)
 class UserProfileRepository {
-    private val users = initialUsers.toMutableList()
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun getUserByName(name: String): User? {
-        return users.find { it.name == name }
+    suspend fun getUserByName(name: String): User? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = RetrofitClient.usersApiService.getUsers()
+                if (response.isSuccessful && response.body() != null) {
+                    val users = response.body()!!
+                    users.find { it.name == name }
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
     }
 }

@@ -22,12 +22,7 @@ open class SignUpViewModel : ViewModel() {
             is SignUpEvent.UpdateUsername -> _state.update { it.copy(username = event.username) }
             is SignUpEvent.UpdatePassword -> _state.update { it.copy(password = event.password) }
             is SignUpEvent.UpdateBirthDate -> {
-                val formattedDate = try {
-                    LocalDate.parse(event.birthDate, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                } catch (e: DateTimeParseException) {
-                    null
-                }
-                _state.update { it.copy(birthDate = formattedDate, birthDateString = event.birthDate) }
+                _state.update { it.copy(birthDate = event.birthDate, birthDateString = event.birthDate) }
             }
             is SignUpEvent.UpdatePolicyAccepted -> _state.update { it.copy(isPolicyAccepted = event.isAccepted) }
             is SignUpEvent.SignUp -> {
@@ -53,7 +48,7 @@ data class SignUpState(
     val username: String = "",
     val password: String = "",
     val birthDateString: String = "",
-    val birthDate: LocalDate? = null,
+    val birthDate: String? = null,
     val isPolicyAccepted: Boolean = false,
     val isSuccess: Boolean = false,
     val currentUser: User? = null

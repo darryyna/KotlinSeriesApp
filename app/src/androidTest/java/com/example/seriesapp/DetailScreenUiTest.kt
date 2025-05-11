@@ -8,6 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.seriesapp.models.TvShow
+import com.example.seriesapp.repository.FavoritesRepository
 import com.example.seriesapp.repository.ShowDetailRepository
 import com.example.seriesapp.viewModel.ShowDetailState
 import com.example.seriesapp.viewModel.ShowDetailViewModel
@@ -17,7 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.mockito.Mockito.mock
 
-open class PureUITestShowDetailViewModel(repository: ShowDetailRepository, showId: Int) : ShowDetailViewModel(repository, showId) {
+open class PureUITestShowDetailViewModel(repository: ShowDetailRepository, favoritesRepository: FavoritesRepository, showId: Int) : ShowDetailViewModel(repository, favoritesRepository, showId) {
     private val _testState = MutableStateFlow(ShowDetailState())
     override val state: StateFlow<ShowDetailState> = _testState.asStateFlow()
 
@@ -43,8 +44,7 @@ class DetailScreenUiTest {
     val composeTestRule = createComposeRule()
 
     private val mockNavController: NavController = mock()
-    private val mockShowDetailViewModel: PureUITestShowDetailViewModel = PureUITestShowDetailViewModel(mock(), 1)
-
+    private val mockShowDetailViewModel: PureUITestShowDetailViewModel = PureUITestShowDetailViewModel(mock(), mock(), 1)
     private fun setViewModelState(state: ShowDetailState) {
         mockShowDetailViewModel.setStateForTest(state)
         composeTestRule.waitForIdle()
@@ -69,7 +69,7 @@ class DetailScreenUiTest {
             title = "Test Show",
             genre = "Drama",
             rating = 4.5f,
-            imageResId = R.drawable.br,
+            imageName = "br",
             totalSeasons = 5,
             seasonsWatched = 2,
             isFavorite = false,
@@ -114,7 +114,7 @@ class DetailScreenUiTest {
             title = "Test Show",
             genre = "Drama",
             rating = 4.5f,
-            imageResId = R.drawable.ic_launcher_foreground,
+            imageName = "br",
             totalSeasons = 5,
             seasonsWatched = 2,
             isFavorite = false,
@@ -141,7 +141,7 @@ class DetailScreenUiTest {
             title = "Test Show",
             genre = "Drama",
             rating = 4.5f,
-            imageResId = R.drawable.ic_launcher_foreground,
+            imageName = "br",
             totalSeasons = 5,
             seasonsWatched = 2,
             isFavorite = false,
@@ -157,7 +157,7 @@ class DetailScreenUiTest {
     @Test
     fun showDetailScreen_backButtonIsClickable() {
         val testShow = TvShow(
-            id = 1, title = "Test", genre = "Test", rating = 0.0f, imageResId = R.drawable.ic_launcher_foreground,
+            id = 1, title = "Test", genre = "Test", rating = 0.0f, imageName = "br",
             totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null
         )
         setupShowDetailScreen(initialState = ShowDetailState(show = testShow))
@@ -170,7 +170,7 @@ class DetailScreenUiTest {
     @Test
     fun showDetailScreen_favoriteButtonIsClickable() {
         val testShow = TvShow(
-            id = 1, title = "Test", genre = "Test", rating = 0.0f, imageResId = R.drawable.ic_launcher_foreground,
+            id = 1, title = "Test", genre = "Test", rating = 0.0f, imageName = "br",
             totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null
         )
         setupShowDetailScreen(initialState = ShowDetailState(show = testShow))
@@ -183,7 +183,7 @@ class DetailScreenUiTest {
     @Test
     fun showDetailScreen_markWatchedButtonIsClickable() {
         val testShow = TvShow(
-            id = 1, title = "Test", genre = "Test", rating = 0.0f, imageResId = R.drawable.ic_launcher_foreground,
+            id = 1, title = "Test", genre = "Test", rating = 0.0f, imageName = "br",
             totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null
         )
         setupShowDetailScreen(initialState = ShowDetailState(show = testShow))
@@ -196,7 +196,7 @@ class DetailScreenUiTest {
     @Test
     fun showDetailScreen_addNoteButtonIsClickable() {
         val testShow = TvShow(
-            id = 1, title = "Test", genre = "Test", rating = 0.0f, imageResId = R.drawable.ic_launcher_foreground,
+            id = 1, title = "Test", genre = "Test", rating = 0.0f, imageName = "br",
             totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null
         )
         setupShowDetailScreen(initialState = ShowDetailState(show = testShow))

@@ -1,5 +1,6 @@
 package com.example.seriesapp.views
 
+import LoginViewModel
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
@@ -12,8 +13,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.seriesapp.models.User
-import com.example.seriesapp.viewModel.LoginEvent
-import com.example.seriesapp.viewModel.LoginViewModel
 import com.example.seriesapp.views.components.Logo
 
 @RequiresApi(Build.VERSION_CODES.O)

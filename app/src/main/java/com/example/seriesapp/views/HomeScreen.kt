@@ -1,5 +1,6 @@
 package com.example.seriesapp.views
 
+import HomeViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,10 +15,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.seriesapp.viewModel.HomeViewModel
-import com.example.seriesapp.viewModel.HomeEvent
 import com.example.seriesapp.views.components.ShowListItem
 
 @Composable
@@ -68,10 +66,9 @@ fun HomeScreen(
                 ShowListItem(
                     show = show,
                     navController = navController,
-                    onFavoriteClick = { showId ->
-                        viewModel.onEvent(HomeEvent.ToggleFavorite(showId))
+                    onFavoriteClick = {
+                        viewModel.onEvent(HomeEvent.ToggleFavorite(show.id))
                     }
-
                 )
             }
         }

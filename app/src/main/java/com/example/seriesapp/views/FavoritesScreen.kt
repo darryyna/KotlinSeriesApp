@@ -1,8 +1,8 @@
 package com.example.seriesapp.views
 
+import FavoritesViewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
@@ -14,9 +14,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.foundation.lazy.items
 import com.example.seriesapp.repository.FavoritesRepository
-import com.example.seriesapp.viewModel.FavoritesEvent
-import com.example.seriesapp.viewModel.FavoritesViewModel
 import com.example.seriesapp.views.components.ShowListItem
 
 @Composable
@@ -66,8 +65,8 @@ fun FavoritesScreen(
                     ShowListItem(
                         show = show,
                         navController = navController,
-                        onFavoriteClick = { showId ->
-                            viewModel.handleEvent(FavoritesEvent.ToggleFavorite(showId))
+                        onFavoriteClick = {
+                            viewModel.handleEvent(FavoritesEvent.ToggleFavorite(it))
                         }
                     )
                 }

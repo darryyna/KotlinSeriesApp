@@ -1,5 +1,7 @@
 package com.example.seriesapp.views
 
+import HomeViewModel
+import LoginViewModel
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
@@ -13,15 +15,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.seriesapp.models.User
-import com.example.seriesapp.models.allShows
 import com.example.seriesapp.repository.FavoritesRepository
 import com.example.seriesapp.repository.LoginRepository
 import com.example.seriesapp.repository.ShowDetailRepository
 import com.example.seriesapp.repository.UserProfileRepository
 import com.example.seriesapp.utils.BottomNavigationBar
 import com.example.seriesapp.utils.NavigationRailBar
-import com.example.seriesapp.viewModel.HomeViewModel
-import com.example.seriesapp.viewModel.LoginViewModel
 import com.example.seriesapp.viewModel.SearchViewModel
 import com.example.seriesapp.viewModel.ShowDetailViewModel
 import com.example.seriesapp.viewModel.SignUpViewModel
@@ -89,21 +88,22 @@ fun SerialTrackerApp(navController: NavHostController = rememberNavController())
                     FavoritesScreen(navController, favRepository)
                 }
 
-                composable("details/{showId}") { backStackEntry ->
-                    val showId = backStackEntry.arguments?.getString("showId")?.toIntOrNull() ?: 1
-                    val showDetailRepository =
-                        remember { ShowDetailRepository(initialShows = allShows) }
-                    ShowDetailScreen(
-                        showId = showId,
-                        navController = navController,
-                        viewModel = viewModel(initializer = {
-                            ShowDetailViewModel(
-                                repository = showDetailRepository,
-                                showId = showId
-                            )
-                        })
-                    )
-                }
+                    composable("details/{showId}") { backStackEntry ->
+                        val showId = backStackEntry.arguments?.getString("showId")?.toIntOrNull() ?: return@composable
+                        val showDetailRepository = remember { ShowDetailRepository(favRepository.allShowsState) }
+
+                        ShowDetailScreen(
+                            showId = showId,
+                            navController = navController,
+                            viewModel = viewModel(initializer = {
+                                ShowDetailViewModel(
+                                    repository = showDetailRepository,
+                                    favoritesRepository = favRepository,
+                                    showId = showId
+                                )
+                            })
+                        )
+                    }
 
                 composable("search") {
                     SearchScreen(

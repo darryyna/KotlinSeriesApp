@@ -1,10 +1,9 @@
 package com.example.seriesapp.viewModel
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.annotation.RequiresApi
+import android.os.Build
 import com.example.seriesapp.models.User
 import com.example.seriesapp.repository.UserProfileRepository
 import com.example.seriesapp.views.UserStats
@@ -31,7 +30,8 @@ class UserProfileViewModel(
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadUser(user: User) {
         viewModelScope.launch {
-            _user.value = repository.getUserByName(user.name)
+            val updatedUser = repository.getUserByName(user.name)
+            _user.value = updatedUser
         }
     }
 }

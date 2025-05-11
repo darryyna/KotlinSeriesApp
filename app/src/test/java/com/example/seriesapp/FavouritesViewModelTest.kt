@@ -1,10 +1,10 @@
 package com.example.seriesapp
 
+import FavoritesState
+import FavoritesViewModel
 import com.example.seriesapp.models.TvShow
 import com.example.seriesapp.repository.FavoritesRepository
-import com.example.seriesapp.viewModel.FavoritesEvent
-import com.example.seriesapp.viewModel.FavoritesState
-import com.example.seriesapp.viewModel.FavoritesViewModel
+import com.example.seriesapp.repository.TvShowsDataState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -35,7 +35,7 @@ class FavouritesViewModelTest {
     private val mockRepository: FavoritesRepository = mock()
 
     private val testShow1 = TvShow(
-        id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageResId = 0,
+        id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageName = "test",
         totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null
     )
     private val testShow2 = testShow1.copy(id = 2, title = "Show B", isFavorite = true)
@@ -47,52 +47,55 @@ class FavouritesViewModelTest {
 
     @Test
     fun init_collectsFavoriteShowsFromRepository() = runTest {
-        val repositoryFavoriteShowsFlow = MutableStateFlow(initialFavoriteShows)
-        whenever(mockRepository.favoriteShows).thenReturn(repositoryFavoriteShowsFlow)
+        val repositoryFlow = MutableStateFlow<TvShowsDataState>(
+            TvShowsDataState.Success(initialFavoriteShows)
+        )
+        whenever(mockRepository.allShowsState).thenReturn(repositoryFlow)
         viewModel = TestableFavoritesViewModel(repository = mockRepository)
         advanceUntilIdle()
         assertEquals(initialFavoriteShows, viewModel.state.value.favoriteShows)
-        verify(mockRepository).favoriteShows
+        verify(mockRepository).allShowsState
     }
 
     @Test
     fun init_updatesStateWhenRepositoryFlowEmitsNewValue() = runTest {
-        val repositoryFavoriteShowsFlow = MutableStateFlow(initialFavoriteShows)
-        whenever(mockRepository.favoriteShows).thenReturn(repositoryFavoriteShowsFlow)
+        val repositoryFlow = MutableStateFlow<TvShowsDataState>(
+            TvShowsDataState.Success(initialFavoriteShows)
+        )
+        whenever(mockRepository.allShowsState).thenReturn(repositoryFlow)
         viewModel = TestableFavoritesViewModel(repository = mockRepository)
         advanceUntilIdle()
         assertEquals(initialFavoriteShows, viewModel.state.value.favoriteShows)
-        repositoryFavoriteShowsFlow.value = updatedFavoriteShows
+
+        repositoryFlow.value = TvShowsDataState.Success(updatedFavoriteShows)
         advanceUntilIdle()
-        assertEquals(updatedFavoriteShows, viewModel.state.value.favoriteShows)
+        assertEquals(updatedFavoriteShows.filter { it.isFavorite }, viewModel.state.value.favoriteShows)
     }
 
     @Test
-    fun handleEvent_ToggleFavorite_callsRepositoryUpdateFavorites() = runTest {
-        val repositoryFavoriteShowsFlow = MutableStateFlow(initialFavoriteShows)
-        whenever(mockRepository.favoriteShows).thenReturn(repositoryFavoriteShowsFlow)
-        doNothing().whenever(mockRepository).updateFavorites(any())
-        viewModel = TestableFavoritesViewModel(repository = mockRepository)
-        viewModel.setTestState(FavoritesState(favoriteShows = initialFavoriteShows))
+    fun handleEvent_ToggleFavorite_callsRepositoryUpdateShowLocally() = runTest {
+        val repositoryFlow = MutableStateFlow<TvShowsDataState>(TvShowsDataState.Success(initialFavoriteShows))
+        whenever(mockRepository.allShowsState).thenReturn(repositoryFlow)
 
-        val showIdToToggle = testShow2.id
-        val expectedShowAfterToggle = testShow2.copy(isFavorite = !testShow2.isFavorite)
-        viewModel.handleEvent(FavoritesEvent.ToggleFavorite(showIdToToggle))
+        viewModel = TestableFavoritesViewModel(repository = mockRepository)
+        val toggledShow = testShow2.copy(isFavorite = !testShow2.isFavorite)
+        viewModel.handleEvent(FavoritesEvent.ToggleFavorite(testShow2))
         advanceUntilIdle()
-        verify(mockRepository).updateFavorites(eq(expectedShowAfterToggle))
-        assertEquals(initialFavoriteShows, viewModel.state.value.favoriteShows)
+        verify(mockRepository).updateShowLocally(eq(toggledShow))
     }
 
     @Test
-    fun handleEvent_ToggleFavorite_whenShowNotFound_doesNothing() = runTest {
-        val repositoryFavoriteShowsFlow = MutableStateFlow(initialFavoriteShows)
-        whenever(mockRepository.favoriteShows).thenReturn(repositoryFavoriteShowsFlow)
+    fun handleEvent_ToggleFavorite_whenShowNotInList_doesNotThrow() = runTest {
+        val repositoryFlow = MutableStateFlow<TvShowsDataState>(
+            TvShowsDataState.Success(initialFavoriteShows)
+        )
+        whenever(mockRepository.allShowsState).thenReturn(repositoryFlow)
         viewModel = TestableFavoritesViewModel(repository = mockRepository)
-        val initialState = FavoritesState(favoriteShows = initialFavoriteShows)
-        viewModel.setTestState(initialState)
-        viewModel.handleEvent(FavoritesEvent.ToggleFavorite(99))
+
+        val nonExistentShow = testShow1.copy(id = 999)
+        viewModel.handleEvent(FavoritesEvent.ToggleFavorite(nonExistentShow))
         advanceUntilIdle()
-        verify(mockRepository, never()).updateFavorites(any())
-        assertEquals(initialState, viewModel.state.value)
+
+        verify(mockRepository).updateShowLocally(eq(nonExistentShow.copy(isFavorite = true)))
     }
 }

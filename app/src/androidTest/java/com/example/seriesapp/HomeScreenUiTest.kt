@@ -1,5 +1,8 @@
 package com.example.seriesapp
 
+import HomeEvent
+import HomeState
+import HomeViewModel
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavController
@@ -7,27 +10,46 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.compose.AppTheme
 import com.example.seriesapp.models.TvShow
-import com.example.seriesapp.viewModel.HomeEvent
-import com.example.seriesapp.viewModel.HomeState
-import com.example.seriesapp.viewModel.HomeViewModel
+import com.example.seriesapp.models.testShows
+import com.example.seriesapp.repository.FavoritesRepository
+import com.example.seriesapp.repository.TvShowsDataState
 import com.example.seriesapp.views.HomeScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import org.mockito.Mockito.mock
+import org.mockito.kotlin.whenever
 
-open class PureUITestHomeViewModel : HomeViewModel(mock()) {
+open class PureUITestHomeViewModel : HomeViewModel(createMockRepository()) {
     private val _testState = MutableStateFlow(HomeState())
-    override val state: StateFlow<HomeState> = _testState.asStateFlow()
+    override val state: StateFlow<HomeState> = _testState
 
     fun setStateForTest(newState: HomeState) {
         _testState.value = newState
     }
 
     override fun onEvent(event: HomeEvent) {
+        when (event) {
+            is HomeEvent.ToggleFavorite -> {
+                val updatedShows = _testState.value.tvShows.map {
+                    if (it.id == event.showId) it.copy(isFavorite = !it.isFavorite) else it
+                }
+                _testState.value = _testState.value.copy(tvShows = updatedShows)
+            }
+            HomeEvent.RefreshShows -> {
+            }
+        }
     }
 
+    companion object {
+        private fun createMockRepository(): FavoritesRepository {
+            return mock<FavoritesRepository>().also { repo ->
+                whenever(repo.allShowsState).thenReturn(MutableStateFlow(TvShowsDataState.Success(emptyList())))
+                whenever(repo.favoriteShows).thenReturn(MutableStateFlow(emptyList()))
+            }
+        }
+    }
 }
 
 
@@ -39,6 +61,7 @@ class HomeScreenUITest {
 
     private val mockNavController: NavController = mock()
     private val mockHomeViewModel: PureUITestHomeViewModel = PureUITestHomeViewModel()
+
     private fun setViewModelState(state: HomeState) {
         mockHomeViewModel.setStateForTest(state)
         composeTestRule.waitForIdle()
@@ -48,16 +71,18 @@ class HomeScreenUITest {
         setViewModelState(initialState)
 
         composeTestRule.setContent {
-            HomeScreen(
-                navController = mockNavController,
-                viewModel = mockHomeViewModel
-            )
+            AppTheme {
+                HomeScreen(
+                    navController = mockNavController,
+                    viewModel = mockHomeViewModel
+                )
+            }
         }
     }
 
     @Test
     fun homeScreen_elementsAreDisplayed() {
-        setupHomeScreen(initialState = HomeState(tvShows = emptyList()))
+        setupHomeScreen(initialState = HomeState(tvShows = emptyList(), isLoading = false))
 
         composeTestRule.onNodeWithTag("homeScreen").assertExists()
         composeTestRule.onNodeWithTag("homeTitle").assertExists()
@@ -70,10 +95,10 @@ class HomeScreenUITest {
     @Test
     fun homeScreen_showsListOfShowsWhenLoaded() {
         val testShows = listOf(
-            TvShow(id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageResId = R.drawable.ic_launcher_foreground, totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null),
-            TvShow(id = 2, title = "Show B", genre = "Comedy", rating = 4.5f, imageResId = R.drawable.ic_launcher_foreground, totalSeasons = 2, seasonsWatched = 1, isFavorite = true, nextEpisodeDate = "Tomorrow")
+            TvShow(id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageName = "br", totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null),
+            TvShow(id = 2, title = "Show B", genre = "Comedy", rating = 4.5f, imageName = "br", totalSeasons = 2, seasonsWatched = 1, isFavorite = true, nextEpisodeDate = "Tomorrow")
         )
-        setupHomeScreen(initialState = HomeState(tvShows = testShows))
+        setupHomeScreen(initialState = HomeState(tvShows = testShows, isLoading = false))
 
         composeTestRule.onNodeWithTag("showList").assertExists()
 
@@ -100,7 +125,7 @@ class HomeScreenUITest {
 
     @Test
     fun homeScreen_showsEmptyStateWhenNoShows() {
-        setupHomeScreen(initialState = HomeState(tvShows = emptyList()))
+        setupHomeScreen(initialState = HomeState(tvShows = emptyList(), isLoading = false))
 
         composeTestRule.onNodeWithTag("showList").assertExists()
         composeTestRule.onNodeWithTag("showItem_1").assertDoesNotExist()
@@ -108,7 +133,7 @@ class HomeScreenUITest {
 
     @Test
     fun homeScreen_searchIconIsClickable() {
-        setupHomeScreen(initialState = HomeState(tvShows = emptyList()))
+        setupHomeScreen(initialState = HomeState(tvShows = emptyList(), isLoading = false))
 
         composeTestRule.onNodeWithTag("searchIcon").assertExists()
         composeTestRule.onNodeWithTag("searchIcon").assertIsEnabled()
@@ -118,9 +143,9 @@ class HomeScreenUITest {
     @Test
     fun homeScreen_showListItemIsClickable() {
         val testShows = listOf(
-            TvShow(id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageResId = R.drawable.ic_launcher_foreground, totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null)
+            TvShow(id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageName = "br", totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null)
         )
-        setupHomeScreen(initialState = HomeState(tvShows = testShows))
+        setupHomeScreen(initialState = HomeState(tvShows = testShows, isLoading = false))
 
         val showId = testShows.first().id
         composeTestRule.onNodeWithTag("showItem_${showId}").assertExists()
@@ -131,9 +156,9 @@ class HomeScreenUITest {
     @Test
     fun homeScreen_favoriteIconInListItemIsClickable() {
         val testShows = listOf(
-            TvShow(id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageResId = R.drawable.ic_launcher_foreground, totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null)
+            TvShow(id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageName = "br", totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null)
         )
-        setupHomeScreen(initialState = HomeState(tvShows = testShows))
+        setupHomeScreen(initialState = HomeState(tvShows = testShows, isLoading = false))
 
         val showId = testShows.first().id
         composeTestRule.onNodeWithTag("favoriteIcon_${showId}", useUnmergedTree = true).assertExists()
@@ -143,10 +168,10 @@ class HomeScreenUITest {
 
     @Test
     fun homeScreen_favoriteIconInListItemChangesWhenFavoriteStateChanges() {
-        val initialShow = TvShow(id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageResId = R.drawable.ic_launcher_foreground, totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null)
+        val initialShow = TvShow(id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageName = "br", totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = null)
         val favoriteShow = initialShow.copy(isFavorite = true)
 
-        setupHomeScreen(initialState = HomeState(tvShows = listOf(initialShow)))
+        setupHomeScreen(initialState = HomeState(tvShows = testShows, isLoading = false))
         composeTestRule.onNodeWithTag("favoriteIcon_${initialShow.id}", useUnmergedTree = true).assertContentDescriptionEquals("Add to favorites")
 
         setViewModelState(HomeState(tvShows = listOf(favoriteShow)))
@@ -158,16 +183,26 @@ class HomeScreenUITest {
 
     @Test
     fun homeScreen_showListItemHidesNextEpisodeWhenNull() {
-        val showWithNextEpisode = TvShow(id = 1, title = "Show A", genre = "Action", rating = 4.0f, imageResId = R.drawable.ic_launcher_foreground, totalSeasons = 1, seasonsWatched = 0, isFavorite = false, nextEpisodeDate = "Tomorrow")
-        val showWithoutNextEpisode = showWithNextEpisode.copy(id = 1, nextEpisodeDate = null)
+        val showWithNextEpisode = TvShow(
+            id = 1,
+            title = "Show A",
+            genre = "Action",
+            rating = 4.0f,
+            imageName = "br",
+            totalSeasons = 1,
+            seasonsWatched = 0,
+            isFavorite = false,
+            nextEpisodeDate = "Tomorrow"
+        )
+        val showWithoutNextEpisode = showWithNextEpisode.copy(nextEpisodeDate = null)
 
-        setupHomeScreen(initialState = HomeState(tvShows = listOf(showWithNextEpisode)))
+        setupHomeScreen(initialState = HomeState(tvShows = listOf(showWithNextEpisode), isLoading = false))
+        composeTestRule.onNodeWithTag("showNextEpisode_1", useUnmergedTree = true)
+            .assertExists()
+            .assertTextEquals("Next episode: Tomorrow")
 
-        composeTestRule.onNodeWithTag("showNextEpisode_${showWithNextEpisode.id}", useUnmergedTree = true).assertExists()
-        composeTestRule.onNodeWithTag("showNextEpisode_${showWithNextEpisode.id}", useUnmergedTree = true).assertTextEquals("Next episode: ${showWithNextEpisode.nextEpisodeDate}")
-
-        setViewModelState(HomeState(tvShows = listOf(showWithoutNextEpisode)))
-
-        composeTestRule.onNodeWithTag("showNextEpisode_${showWithoutNextEpisode.id}", useUnmergedTree = true).assertDoesNotExist()
+        setViewModelState(HomeState(tvShows = listOf(showWithoutNextEpisode), isLoading = false))
+        composeTestRule.onNodeWithTag("showNextEpisode_1", useUnmergedTree = true)
+            .assertDoesNotExist()
     }
 }
