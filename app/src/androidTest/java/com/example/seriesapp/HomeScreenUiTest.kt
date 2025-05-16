@@ -6,10 +6,10 @@ import HomeViewModel
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavController
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.compose.AppTheme
 import com.example.seriesapp.models.TvShow
 import com.example.seriesapp.models.testShows
@@ -51,7 +51,6 @@ open class PureUITestHomeViewModel : HomeViewModel(createMockRepository()) {
         }
     }
 }
-
 
 @RunWith(AndroidJUnit4::class)
 class HomeScreenUITest {

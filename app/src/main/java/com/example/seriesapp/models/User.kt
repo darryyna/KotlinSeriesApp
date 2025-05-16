@@ -8,8 +8,9 @@ data class User(
     val isPolicyAccepted: Boolean = false
 )
 
-//val initialUsers = listOf(
-//    User(1, "daryna", "1234", LocalDate.of(2005, 5, 19)),
-//    User(2, "nastia", "5678", LocalDate.of(2004, 10, 27)),
-//    User(3, "vitalina", "abcd", LocalDate.of(2005, 1, 15))
-//)
+data class UserSettings(
+    val username: String = "",
+    val darkModeEnabled: Boolean = false,
+    val appLanguage: String = "English",
+    val notificationsEnabled: Boolean = true
+)

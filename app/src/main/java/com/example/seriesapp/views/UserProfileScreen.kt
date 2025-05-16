@@ -21,6 +21,7 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -31,9 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,21 +45,15 @@ import com.example.seriesapp.R
 import com.example.seriesapp.viewModel.UserProfileViewModel
 import com.example.seriesapp.views.components.SettingRow
 import com.example.seriesapp.views.components.StatItem
-import java.time.format.DateTimeFormatter
 
-data class UserStats(
-    val watched: Int,
-    val inProgress: Int,
-    val abandoned: Int
-)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UserProfileScreen(
-    viewModel: UserProfileViewModel
-) {
+    viewModel: UserProfileViewModel) {
+
     val user by viewModel.user.collectAsState()
-    val stats by viewModel.stats.collectAsState()
+    val userSettings by viewModel.userSettings.collectAsState()
 
     Column(
         modifier = Modifier
@@ -101,41 +93,13 @@ fun UserProfileScreen(
                     )
 
                     user?.birthDate?.let {
-                        val formattedDate = it.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
                         Text(
-                            text = "Birth date: $formattedDate",
+                            text = "Birth date: $it",
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                             modifier = Modifier.padding(top = 4.dp)
                         )
                     }
-                }
-            }
-        }
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "View Statistics",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    StatItem(title = "Completed", count = stats.watched, color = Color(0xFF4CAF50))
-                    StatItem(title = "In Progress", count = stats.inProgress, color = Color(0xFF2196F3))
-                    StatItem(title = "Abandoned", count = stats.abandoned, color = Color(0xFFF44336))
                 }
             }
         }
@@ -156,14 +120,13 @@ fun UserProfileScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                var darkModeEnabled by remember { mutableStateOf(false) }
                 SettingRow(
                     icon = Icons.Outlined.MoreVert,
                     title = "Dark Mode",
                     endContent = {
                         Switch(
-                            checked = darkModeEnabled,
-                            onCheckedChange = { darkModeEnabled = it },
+                            checked = userSettings.darkModeEnabled,
+                            onCheckedChange = { viewModel.setDarkModeEnabled(it) },
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = MaterialTheme.colorScheme.primary,
                                 checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
@@ -179,8 +142,16 @@ fun UserProfileScreen(
                 SettingRow(
                     icon = Icons.Outlined.LocationOn,
                     title = "App Language",
-                    description = "English",
-                    showArrow = true
+                    description = userSettings.appLanguage,
+                    showArrow = false,
+                    endContent = {
+                        Button(onClick = {
+                            val newLang = if (userSettings.appLanguage == "English") "Ukrainian" else "English"
+                            viewModel.setAppLanguage(newLang)
+                        }) {
+                            Text("Toggle")
+                        }
+                    }
                 )
 
                 HorizontalDivider(
@@ -190,8 +161,16 @@ fun UserProfileScreen(
                 SettingRow(
                     icon = Icons.Outlined.Notifications,
                     title = "Notifications",
-                    description = "New episodes and recommendations",
-                    showArrow = true
+                    endContent = {
+                        Switch(
+                            checked = userSettings.notificationsEnabled,
+                            onCheckedChange = { viewModel.setNotificationsEnabled(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                            )
+                        )
+                    }
                 )
             }
         }

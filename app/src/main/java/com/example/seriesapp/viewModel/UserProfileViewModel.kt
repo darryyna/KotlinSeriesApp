@@ -1,37 +1,62 @@
 package com.example.seriesapp.viewModel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
 import androidx.lifecycle.viewModelScope
 import androidx.annotation.RequiresApi
 import android.os.Build
+import androidx.lifecycle.AndroidViewModel
 import com.example.seriesapp.models.User
+import com.example.seriesapp.models.UserSettings
 import com.example.seriesapp.repository.UserProfileRepository
-import com.example.seriesapp.views.UserStats
+import com.example.seriesapp.settings.SettingsDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 class UserProfileViewModel(
+    application: Application,
     private val repository: UserProfileRepository,
-    initialUser: User? = null
-) : ViewModel() {
+    private val currentUser: User?
+) : AndroidViewModel(application) {
 
-    private val _user = MutableStateFlow<User?>(initialUser)
-    val user: StateFlow<User?> = _user
+    private val _user = MutableStateFlow<User?>(null)
+    val user: StateFlow<User?> = _user.asStateFlow()
 
-    private val _stats = MutableStateFlow(UserStats(15, 8, 2))
-    val stats: StateFlow<UserStats> = _stats
+    private val settingsDataStore = SettingsDataStore(application.applicationContext)
+    private val _userSettings = MutableStateFlow(UserSettings())
+    val userSettings: StateFlow<UserSettings> = _userSettings.asStateFlow()
 
     init {
-        initialUser?.let { loadUser(it) }
+        viewModelScope.launch {
+            settingsDataStore.userSettings.collectLatest { settings ->
+                _userSettings.value = settings
+
+                if (settings.username.isNotEmpty()) {
+                    val loadedUser = repository.getUserByName(currentUser?.name ?: settings.username)
+                    _user.value = loadedUser
+                }
+            }
+        }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun loadUser(user: User) {
+    fun setDarkModeEnabled(enabled: Boolean) {
         viewModelScope.launch {
-            val updatedUser = repository.getUserByName(user.name)
-            _user.value = updatedUser
+            settingsDataStore.saveDarkModeEnabled(enabled)
+        }
+    }
+
+    fun setAppLanguage(language: String) {
+        viewModelScope.launch {
+            settingsDataStore.saveAppLanguage(language)
+        }
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsDataStore.saveNotificationsEnabled(enabled)
         }
     }
 }

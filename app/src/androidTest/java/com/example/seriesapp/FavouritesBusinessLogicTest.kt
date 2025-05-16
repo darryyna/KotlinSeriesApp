@@ -24,7 +24,6 @@ class FavouritesBusinessLogicTest {
         val initialSuccessState = TvShowsDataState.Success(testInitialTvShows)
         (repository.allShowsState as MutableStateFlow).value = initialSuccessState
 
-        // Оновлюємо обрані шоу (бо fetch не викликається)
         runBlocking {
             repository.updateFavorites()
         }

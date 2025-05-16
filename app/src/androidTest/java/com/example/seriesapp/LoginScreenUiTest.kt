@@ -47,8 +47,8 @@ class LoginScreenUiTest {
 
         composeTestRule.setContent {
             LoginScreen(
-                onLoginSuccess = { /* Do nothing for test */ },
-                onSignUpClick = { /* Do nothing for test */ },
+                onLoginSuccess = {},
+                onSignUpClick = {},
                 navController = mockNavController,
                 viewModel = mockLoginViewModel
             )

@@ -2,6 +2,7 @@ package com.example.seriesapp.views
 
 import HomeViewModel
 import LoginViewModel
+import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
@@ -9,11 +10,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.seriesapp.db.PersonalShowsViewModel
+import com.example.seriesapp.db.PersonalShowsViewModelFactory
 import com.example.seriesapp.models.User
 import com.example.seriesapp.repository.FavoritesRepository
 import com.example.seriesapp.repository.LoginRepository
@@ -112,11 +116,24 @@ fun SerialTrackerApp(navController: NavHostController = rememberNavController())
                     )
                 }
 
+
                 composable("profile") {
-                    val userProfileViewModel: UserProfileViewModel = viewModel {
-                        UserProfileViewModel(UserProfileRepository(), currentUser)
+                    val context = LocalContext.current.applicationContext as Application
+                    val userProfileViewModel = remember(currentUser) {
+                        UserProfileViewModel(context, UserProfileRepository(), currentUser)
                     }
                     UserProfileScreen(viewModel = userProfileViewModel)
+                }
+
+                composable("personalShows") {
+                    val context = LocalContext.current
+                    val viewModel = viewModel<PersonalShowsViewModel>(
+                        factory = PersonalShowsViewModelFactory(context)
+                    )
+                    PersonalShowsScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
                 }
 
                 composable("splash") {

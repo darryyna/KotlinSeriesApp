@@ -10,9 +10,6 @@ object RetrofitClient {
 
     private const val BASE_URL = "https://run.mocky.io/"
 
-    private const val TV_SHOWS_PATH = "v3/caae0a81-dfaf-42c5-a5d3-22dc345673a5"
-    private const val USERS_PATH = "v3/aaaa7dfe-6b77-4921-a938-892266bda061"
-
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }

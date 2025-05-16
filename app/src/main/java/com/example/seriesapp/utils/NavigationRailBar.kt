@@ -3,6 +3,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
@@ -35,6 +36,13 @@ fun NavigationRailBar(navController: NavController) {
             icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
             label = { Text("Profile") },
             modifier = Modifier.testTag("navRailProfileItem")
+        )
+        NavigationRailItem(
+            selected = false,
+            onClick = { navController.navigate("personalShows") },
+            icon = { Icon(Icons.Default.Settings, contentDescription = "PersonalShows") },
+            label = { Text("Personal Shows") },
+            modifier = Modifier.testTag("navRailSettingsItem")
         )
     }
 }
