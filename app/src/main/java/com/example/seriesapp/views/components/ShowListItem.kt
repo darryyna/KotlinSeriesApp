@@ -23,7 +23,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
+import androidx.compose.ui.res.stringResource
+import com.example.seriesapp.R
 import com.example.seriesapp.models.TvShow
 
 @Composable
@@ -81,7 +82,9 @@ fun ShowListItem(
 
                     Icon(
                         imageVector = if (show.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = if (show.isFavorite) "Remove from favorites" else "Add to favorites",
+                        contentDescription = stringResource(
+                            id = if (show.isFavorite) R.string.content_desc_fav_remove else R.string.content_desc_fav_add
+                        ),
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier
                             .size(24.dp)
@@ -106,7 +109,11 @@ fun ShowListItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Seasons: ${show.seasonsWatched}/${show.totalSeasons}",
+                        text = stringResource(
+                            id = R.string.label_seasons,
+                            show.seasonsWatched,
+                            show.totalSeasons
+                        ),
                         fontSize = 14.sp,
                         modifier = Modifier.testTag("showSeasonsProgressText_${show.id}")
                     )
@@ -134,7 +141,7 @@ fun ShowListItem(
                 if (show.nextEpisodeDate != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Next episode: ${show.nextEpisodeDate}",
+                        text = stringResource(R.string.label_next_episode, show.nextEpisodeDate),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.testTag("showNextEpisode_${show.id}")

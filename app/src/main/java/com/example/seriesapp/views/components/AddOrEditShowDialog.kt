@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.seriesapp.models.TvShow
+import androidx.compose.ui.res.stringResource
+import com.example.seriesapp.R
 
 @Composable
 fun AddOrEditShowDialog(
@@ -53,35 +55,35 @@ fun AddOrEditShowDialog(
                     }
                 }
             ) {
-                Text(if (initialShow == null) "Add" else "Update")
+                Text(stringResource(id = if (initialShow == null) R.string.add else R.string.update))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(id = R.string.cancel))
             }
         },
         title = {
-            Text(text = if (initialShow == null) "Add New Show" else "Edit Show")
+            Text(text = stringResource(id = if (initialShow == null) R.string.add_new_show else R.string.edit_show))
         },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
                     value = show.title,
                     onValueChange = { show = show.copy(title = it) },
-                    label = { Text("Title") },
+                    label = { Text(stringResource(R.string.title)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = show.imageName,
                     onValueChange = { show = show.copy(imageName = it) },
-                    label = { Text("Image name (drawable)") },
+                    label = { Text(stringResource(R.string.image_name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = show.genre,
                     onValueChange = { show = show.copy(genre = it) },
-                    label = { Text("Genre") },
+                    label = { Text(stringResource(R.string.genre)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
@@ -90,7 +92,7 @@ fun AddOrEditShowDialog(
                         val newRating = it.toFloatOrNull() ?: 0f
                         show = show.copy(rating = newRating)
                     },
-                    label = { Text("Rating") },
+                    label = { Text(stringResource(R.string.rating)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -101,7 +103,7 @@ fun AddOrEditShowDialog(
                             val sw = it.toIntOrNull() ?: 0
                             show = show.copy(seasonsWatched = sw)
                         },
-                        label = { Text("Watched") },
+                        label = { Text(stringResource(R.string.watched)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
@@ -111,7 +113,7 @@ fun AddOrEditShowDialog(
                             val ts = it.toIntOrNull() ?: 1
                             show = show.copy(totalSeasons = ts)
                         },
-                        label = { Text("Total") },
+                        label = { Text(stringResource(R.string.total)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
@@ -119,7 +121,7 @@ fun AddOrEditShowDialog(
                 OutlinedTextField(
                     value = show.nextEpisodeDate ?: "",
                     onValueChange = { show = show.copy(nextEpisodeDate = it.ifBlank { null }) },
-                    label = { Text("Next episode (optional)") },
+                    label = { Text(stringResource(R.string.next_episode)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -127,7 +129,7 @@ fun AddOrEditShowDialog(
                         checked = show.isFavorite,
                         onCheckedChange = { show = show.copy(isFavorite = it) }
                     )
-                    Text("Mark as favorite")
+                    Text(stringResource(R.string.mark_as_favorite))
                 }
             }
         }

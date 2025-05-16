@@ -44,7 +44,7 @@ fun SplashScreen(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(bottom = 32.dp)
-                    .testTag("splashLoadingIndicator") // Renamed for clarity
+                    .testTag("splashLoadingIndicator")
             ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,

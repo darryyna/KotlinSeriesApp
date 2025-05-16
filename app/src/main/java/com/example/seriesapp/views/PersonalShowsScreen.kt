@@ -20,6 +20,8 @@ import com.example.seriesapp.models.TvShow
 import androidx.compose.foundation.lazy.items
 import com.example.seriesapp.views.components.AddOrEditShowDialog
 import com.example.seriesapp.views.components.ShowListItem
+import androidx.compose.ui.res.stringResource
+import com.example.seriesapp.R
 
 @Composable
 fun PersonalShowsScreen(
@@ -34,7 +36,7 @@ fun PersonalShowsScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         if (shows.isEmpty()) {
             Text(
-                text = "Додайте серіали у свій список!",
+                text = stringResource(R.string.add_series_prompt),
                 modifier = Modifier.align(Alignment.Center),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
@@ -55,14 +57,27 @@ fun PersonalShowsScreen(
                                 .padding(4.dp),
                             horizontalArrangement = Arrangement.End
                         ) {
-                            IconButton(onClick = { editingShow = show; showDialog = true }) {
-                                Icon(Icons.Default.Edit, contentDescription = "Редагувати")
+                            IconButton(onClick = {
+                                editingShow = show
+                                showDialog = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = stringResource(R.string.edit)
+                                )
                             }
                             IconButton(onClick = {
                                 viewModel.deleteShow(show)
-                                Toast.makeText(context, "Видалено", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.deleted),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Видалити")
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.delete)
+                                )
                             }
                         }
                     }
@@ -80,7 +95,10 @@ fun PersonalShowsScreen(
                 .padding(16.dp),
             containerColor = MaterialTheme.colorScheme.primary
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Додати серіал")
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = stringResource(R.string.add_series)
+            )
         }
     }
 
@@ -91,10 +109,18 @@ fun PersonalShowsScreen(
             onSave = { newShow ->
                 if (editingShow == null) {
                     viewModel.addShow(newShow)
-                    Toast.makeText(context, "Додано", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.added),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     viewModel.updateShow(newShow)
-                    Toast.makeText(context, "Оновлено", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.updated),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 showDialog = false
             }

@@ -17,6 +17,8 @@ import androidx.navigation.NavController
 import androidx.compose.foundation.lazy.items
 import com.example.seriesapp.repository.FavoritesRepository
 import com.example.seriesapp.views.components.ShowListItem
+import androidx.compose.ui.res.stringResource
+import com.example.seriesapp.R
 
 @Composable
 fun FavoritesScreen(
@@ -32,7 +34,7 @@ fun FavoritesScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "My Favorite Series",
+            text = stringResource(R.string.title_favorites_screen),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
@@ -54,7 +56,7 @@ fun FavoritesScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "You don't have any favorite series yet",
+                        text = stringResource(R.string.empty_favorites_message),
                         color = Color.Gray
                     )
                 }

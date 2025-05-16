@@ -14,6 +14,8 @@ import com.example.seriesapp.models.User
 import com.example.seriesapp.viewModel.SignUpEvent
 import com.example.seriesapp.viewModel.SignUpViewModel
 import com.example.seriesapp.views.components.Logo
+import com.example.seriesapp.R
+import androidx.compose.ui.res.stringResource
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -37,7 +39,7 @@ fun SignUpScreen(
         OutlinedTextField(
             value = state.username,
             onValueChange = { viewModel.onEvent(SignUpEvent.UpdateUsername(it)) },
-            label = { Text("Username") },
+            label = { Text(stringResource(R.string.username)) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -46,7 +48,7 @@ fun SignUpScreen(
         OutlinedTextField(
             value = state.password,
             onValueChange = { viewModel.onEvent(SignUpEvent.UpdatePassword(it)) },
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.password)) },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
         )
@@ -56,7 +58,7 @@ fun SignUpScreen(
         OutlinedTextField(
             value = state.birthDateString,
             onValueChange = { viewModel.onEvent(SignUpEvent.UpdateBirthDate(it)) },
-            label = { Text("Date of Birth (DD/MM/YYYY)") },
+            label = { Text(stringResource(R.string.date_of_birth_hint)) },
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -66,7 +68,6 @@ fun SignUpScreen(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 0.dp)
         ) {
             Checkbox(
                 checked = state.isPolicyAccepted,
@@ -74,7 +75,7 @@ fun SignUpScreen(
                 modifier = Modifier.padding(0.dp)
             )
             Text(
-                text = "I accept the privacy policy",
+                text = stringResource(R.string.accept_privacy_policy),
                 modifier = Modifier.padding(start = 0.dp)
             )
         }
@@ -87,13 +88,15 @@ fun SignUpScreen(
             colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
             enabled = state.isFormValid()
         ) {
-            Text(text = "Sign Up")
+            Text(text = stringResource(R.string.sign_up))
         }
 
         if (state.isSuccess) {
             LaunchedEffect(Unit) {
                 onSignUpSuccess(state.currentUser!!)
-                navController.navigate("home") { popUpTo("signup") { inclusive = true } }
+                navController.navigate("home") {
+                    popUpTo("signup") { inclusive = true }
+                }
             }
         }
 
@@ -102,9 +105,9 @@ fun SignUpScreen(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Already have an account?")
+            Text(stringResource(R.string.already_have_account))
             TextButton(onClick = onNavigateBack) {
-                Text("Log in")
+                Text(stringResource(R.string.log_in))
             }
         }
     }

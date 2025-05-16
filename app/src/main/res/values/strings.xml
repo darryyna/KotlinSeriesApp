@@ -1,3 +1,80 @@
 <resources>
     <string name="app_name">seriesApp</string>
+    <string name="add">Add</string>
+    <string name="update">Update</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_new_show">Add New Show</string>
+    <string name="edit_show">Edit Show</string>
+    <string name="title">Title</string>
+    <string name="image_name">Image name (drawable)</string>
+    <string name="genre">Genre</string>
+    <string name="rating">Rating</string>
+    <string name="watched">Watched</string>
+    <string name="total">Total</string>
+    <string name="next_episode">Next episode (optional)</string>
+    <string name="mark_as_favorite">Mark as favorite</string>
+    <string name="app_logo">App logo</string>
+    <string name="content_desc_fav_add">Add to favorites</string>
+    <string name="content_desc_fav_remove">Remove from favorites</string>
+    <string name="label_seasons">Seasons: %1$d/%2$d</string>
+    <string name="label_next_episode">Next episode: %1$s</string>
+    <string name="title_favorites_screen">My Favorite Series</string>
+    <string name="empty_favorites_message">You do not have any favorite series yet</string>
+    <string name="home_title">My Series Journal</string>
+    <string name="search">Search</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="logging_in">Logging In...</string>
+    <string name="log_in">Log In</string>
+    <string name="invalid_credentials">Invalid username or password</string>
+    <string name="reset">Reset</string>
+    <string name="no_account">Do not have an account?</string>
+    <string name="create_account">Create one</string>
+    <string name="add_series_prompt">Add series to your list!</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="add_series">Add series</string>
+    <string name="added">Added</string>
+    <string name="updated">Updated</string>
+    <string name="deleted">Deleted</string>
+    <string name="min_seasons">Min seasons</string>
+    <string name="sort_by_rating">Sort by rating</string>
+    <string name="back">Back</string>
+    <string name="remove_from_favorites">Remove from favorites</string>
+    <string name="add_to_favorites">Add to favorites</string>
+    <string name="watching_progress">Watching Progress</string>
+    <string name="seasons_progress">Seasons: %1$d of %2$d</string>
+    <string name="next_episode_detail">Next episode: %1$s</string>
+    <string name="series_information">Series Information</string>
+    <string name="genre_detail">Genre</string>
+    <string name="rating_detail">Rating</string>
+    <string name="rating_out_of">%1$.1f / 5.0</string>
+    <string name="total_seasons">Total Seasons</string>
+    <string name="status">Status</string>
+    <string name="ongoing">Ongoing</string>
+    <string name="completed">Completed</string>
+    <string name="mark_watched">Mark as Watched</string>
+    <string name="add_note">Add Note</string>
+    <string name="error_loading">Error loading show details</string>
+    <string name="date_of_birth_hint">Date of Birth (DD/MM/YYYY)</string>
+    <string name="accept_privacy_policy">I accept the privacy policy</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="no_name">no name</string>
+    <string name="birth_date">Birth date: %1$s</string>
+    <string name="app_settings">App Settings</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="app_language">App Language</string>
+    <string name="toggle">Toggle</string>
+    <string name="notifications">Notifications</string>
+    <string name="privacy_and_security">Privacy and Security</string>
+    <string name="change_password">Change Password</string>
+    <string name="privacy_settings">Privacy Settings</string>
+    <string name="data_and_permissions_management">Data and permissions management</string>
+
+
+
+
+
 </resources>

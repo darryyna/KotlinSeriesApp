@@ -7,6 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.example.seriesapp.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -44,6 +47,8 @@ private fun SearchContent(
     onEvent: (SearchViewModel.Event) -> Unit,
     navController: NavController
 ) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,13 +57,13 @@ private fun SearchContent(
         TextField(
             value = state.searchText,
             onValueChange = { onEvent(SearchViewModel.Event.SearchTextChanged(it)) },
-            label = { Text("Search") },
+            label = { Text(stringResource(R.string.search)) },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(Modifier.height(16.dp))
 
-        Text("Min seasons: ${state.minSeasons}")
+        Text("${stringResource(R.string.min_seasons)}: ${state.minSeasons}")
         Slider(
             value = state.minSeasons.toFloat(),
             onValueChange = { onEvent(SearchViewModel.Event.MinSeasonsChanged(it.toInt())) },
@@ -71,7 +76,7 @@ private fun SearchContent(
                 checked = state.sortByRating,
                 onCheckedChange = { onEvent(SearchViewModel.Event.SortByRatingToggled(it)) }
             )
-            Text("Sort by rating")
+            Text(stringResource(R.string.sort_by_rating))
         }
 
         LazyColumn {

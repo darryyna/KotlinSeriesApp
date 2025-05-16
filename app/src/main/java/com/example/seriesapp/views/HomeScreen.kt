@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.seriesapp.views.components.ShowListItem
+import androidx.compose.ui.res.stringResource
+import com.example.seriesapp.R
 
 @Composable
 fun HomeScreen(
@@ -37,7 +39,7 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "My Series Journal",
+                text = stringResource(R.string.home_title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -47,7 +49,7 @@ fun HomeScreen(
             Box {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
+                    contentDescription = stringResource(R.string.search),
                     modifier = Modifier
                         .size(24.dp)
                         .testTag("searchIcon")

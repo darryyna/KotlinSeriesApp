@@ -10,6 +10,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.seriesapp.R
+import androidx.compose.ui.res.stringResource
+
 
 @Composable
 fun Logo() {
@@ -28,7 +30,7 @@ fun Logo() {
     ) {
         Image(
             painter = painterResource(id = logoRes),
-            contentDescription = "App Logo",
+            contentDescription = stringResource(id = R.string.app_logo),
             modifier = Modifier
                 .height(800.dp)
                 .fillMaxWidth()

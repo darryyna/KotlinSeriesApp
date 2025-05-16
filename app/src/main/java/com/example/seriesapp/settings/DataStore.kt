@@ -26,17 +26,11 @@ class SettingsDataStore(private val context: Context) {
         .map { preferences ->
             UserSettings(
                 username = preferences[PreferencesKeys.USERNAME_KEY] ?: "",
-                darkModeEnabled = preferences[PreferencesKeys.DARK_MODE_ENABLED] ?: false,
+                darkModeEnabled = preferences[PreferencesKeys.DARK_MODE_ENABLED] == true,
                 appLanguage = preferences[PreferencesKeys.APP_LANGUAGE] ?: "English",
-                notificationsEnabled = preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] ?: true
+                notificationsEnabled = preferences[PreferencesKeys.NOTIFICATIONS_ENABLED] != false
             )
         }
-
-    suspend fun saveUsername(username: String) {
-        context.dataStore.edit { prefs ->
-            prefs[PreferencesKeys.USERNAME_KEY] = username
-        }
-    }
 
     suspend fun saveDarkModeEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->

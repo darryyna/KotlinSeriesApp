@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.seriesapp.viewModel.ShowDetailViewModel
+import com.example.seriesapp.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun ShowDetailScreen(
@@ -39,10 +41,10 @@ fun ShowDetailScreen(
     }
 
     state.show?.let { show ->
-
         val imageResId = remember(show.imageName) {
             context.resources.getIdentifier(show.imageName, "drawable", context.packageName)
         }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -85,7 +87,7 @@ fun ShowDetailScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.back),
                         tint = Color.White
                     )
                 }
@@ -124,9 +126,7 @@ fun ShowDetailScreen(
                                 tint = Color.Yellow,
                                 modifier = Modifier.size(20.dp)
                             )
-
                             Spacer(modifier = Modifier.width(4.dp))
-
                             Text(
                                 text = show.rating.toString(),
                                 color = Color.White,
@@ -137,6 +137,7 @@ fun ShowDetailScreen(
                         }
                     }
                 }
+
                 IconButton(
                     onClick = { viewModel.toggleFavorite() },
                     modifier = Modifier
@@ -149,7 +150,10 @@ fun ShowDetailScreen(
                 ) {
                     Icon(
                         imageVector = if (show.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = if (show.isFavorite) "Remove from favorites" else "Add to favorites",
+                        contentDescription = if (show.isFavorite)
+                            stringResource(R.string.remove_from_favorites)
+                        else
+                            stringResource(R.string.add_to_favorites),
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.testTag("favoriteIcon")
                     )
@@ -173,7 +177,7 @@ fun ShowDetailScreen(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "Watching Progress",
+                            text = stringResource(R.string.watching_progress),
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
@@ -184,7 +188,11 @@ fun ShowDetailScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Seasons: ${show.seasonsWatched}/${show.totalSeasons}",
+                                text = stringResource(
+                                    R.string.seasons_progress,
+                                    show.seasonsWatched,
+                                    show.totalSeasons
+                                ),
                                 fontSize = 16.sp,
                                 modifier = Modifier.testTag("seasonsWatchedText")
                             )
@@ -233,7 +241,7 @@ fun ShowDetailScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
 
                                 Text(
-                                    text = "Next episode: ${show.nextEpisodeDate}",
+                                    text = stringResource(R.string.next_episode_detail, show.nextEpisodeDate),
                                     fontSize = 16.sp,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.Medium,
@@ -256,7 +264,7 @@ fun ShowDetailScreen(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "Series Information",
+                            text = stringResource(R.string.series_information),
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
@@ -269,7 +277,7 @@ fun ShowDetailScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Genre",
+                                    text = stringResource(R.string.genre_detail),
                                     fontSize = 14.sp,
                                     color = Color.Gray
                                 )
@@ -283,7 +291,7 @@ fun ShowDetailScreen(
 
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Rating",
+                                    text = stringResource(R.string.rating_detail),
                                     fontSize = 14.sp,
                                     color = Color.Gray
                                 )
@@ -298,7 +306,7 @@ fun ShowDetailScreen(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "${show.rating}/5.0",
+                                        text = stringResource(R.string.rating_out_of, show.rating),
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Medium,
                                         modifier = Modifier.testTag("infoRatingText")
@@ -315,7 +323,7 @@ fun ShowDetailScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Total Seasons",
+                                    text = stringResource(R.string.total_seasons),
                                     fontSize = 14.sp,
                                     color = Color.Gray
                                 )
@@ -329,12 +337,15 @@ fun ShowDetailScreen(
 
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Status",
+                                    text = stringResource(R.string.status),
                                     fontSize = 14.sp,
                                     color = Color.Gray
                                 )
                                 Text(
-                                    text = if (show.nextEpisodeDate != null) "Ongoing" else "Completed",
+                                    text = if (show.nextEpisodeDate != null)
+                                        stringResource(R.string.ongoing)
+                                    else
+                                        stringResource(R.string.completed),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = if (show.nextEpisodeDate != null)
@@ -372,7 +383,7 @@ fun ShowDetailScreen(
 
                             Spacer(modifier = Modifier.width(8.dp))
 
-                            Text("Mark Watched", fontSize = 16.sp)
+                            Text(stringResource(R.string.mark_watched), fontSize = 16.sp)
                         }
                     }
 
@@ -395,17 +406,21 @@ fun ShowDetailScreen(
 
                             Spacer(modifier = Modifier.width(8.dp))
 
-                            Text("Add Note", fontSize = 16.sp)
+                            Text(stringResource(R.string.add_note), fontSize = 16.sp)
                         }
                     }
                 }
             }
         }
     } ?: run {
-        Box(modifier = Modifier.fillMaxSize().testTag("loadingOrErrorContainer"), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxSize().testTag("loadingOrErrorContainer"),
+            contentAlignment = Alignment.Center
+        ) {
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.testTag("loadingIndicator"))
-                Text("Error loading show details", modifier = Modifier.testTag("errorText"))
+            } else {
+                Text(stringResource(R.string.error_loading), modifier = Modifier.testTag("errorText"))
             }
         }
     }

@@ -3,7 +3,6 @@ package com.example.seriesapp.views
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,23 +34,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.seriesapp.R
 import com.example.seriesapp.viewModel.UserProfileViewModel
 import com.example.seriesapp.views.components.SettingRow
-import com.example.seriesapp.views.components.StatItem
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UserProfileScreen(
-    viewModel: UserProfileViewModel) {
-
+    viewModel: UserProfileViewModel
+) {
     val user by viewModel.user.collectAsState()
     val userSettings by viewModel.userSettings.collectAsState()
 
@@ -75,7 +73,7 @@ fun UserProfileScreen(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.user),
-                    contentDescription = "Profile Picture",
+                    contentDescription = stringResource(R.string.profile_picture),
                     modifier = Modifier
                         .size(100.dp)
                         .clip(CircleShape),
@@ -86,7 +84,7 @@ fun UserProfileScreen(
 
                 Column {
                     Text(
-                        text = user?.name ?: "ноунейм",
+                        text = user?.name ?: stringResource(R.string.no_name),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -94,7 +92,7 @@ fun UserProfileScreen(
 
                     user?.birthDate?.let {
                         Text(
-                            text = "Birth date: $it",
+                            text = stringResource(R.string.birth_date, it),
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                             modifier = Modifier.padding(top = 4.dp)
@@ -114,7 +112,7 @@ fun UserProfileScreen(
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "App Settings",
+                    text = stringResource(R.string.app_settings),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -122,7 +120,7 @@ fun UserProfileScreen(
 
                 SettingRow(
                     icon = Icons.Outlined.MoreVert,
-                    title = "Dark Mode",
+                    title = stringResource(R.string.dark_mode),
                     endContent = {
                         Switch(
                             checked = userSettings.darkModeEnabled,
@@ -135,13 +133,11 @@ fun UserProfileScreen(
                     }
                 )
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 SettingRow(
                     icon = Icons.Outlined.LocationOn,
-                    title = "App Language",
+                    title = stringResource(R.string.app_language),
                     description = userSettings.appLanguage,
                     showArrow = false,
                     endContent = {
@@ -149,18 +145,16 @@ fun UserProfileScreen(
                             val newLang = if (userSettings.appLanguage == "English") "Ukrainian" else "English"
                             viewModel.setAppLanguage(newLang)
                         }) {
-                            Text("Toggle")
+                            Text(stringResource(R.string.toggle))
                         }
                     }
                 )
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 SettingRow(
                     icon = Icons.Outlined.Notifications,
-                    title = "Notifications",
+                    title = stringResource(R.string.notifications),
                     endContent = {
                         Switch(
                             checked = userSettings.notificationsEnabled,
@@ -185,7 +179,7 @@ fun UserProfileScreen(
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "Privacy & Security",
+                    text = stringResource(R.string.privacy_and_security),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -193,22 +187,21 @@ fun UserProfileScreen(
 
                 SettingRow(
                     icon = Icons.Outlined.Info,
-                    title = "Change Password",
+                    title = stringResource(R.string.change_password),
                     showArrow = true
                 )
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 SettingRow(
                     icon = Icons.Outlined.Settings,
-                    title = "Privacy Settings",
-                    description = "Data and permissions management",
+                    title = stringResource(R.string.privacy_settings),
+                    description = stringResource(R.string.data_and_permissions_management),
                     showArrow = true
                 )
             }
         }
     }
 }
+
 
